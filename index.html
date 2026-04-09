@@ -1,0 +1,2547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AtletasPro HTML</title>
+    <style>
+      :root {
+        --bg: #f4f7f3;
+        --panel: #ffffff;
+        --panel-soft: #f8faf7;
+        --line: #dbe6d9;
+        --text: #183024;
+        --muted: #6c8074;
+        --brand: #20633d;
+        --brand-soft: #e6f3ea;
+        --danger: #b33a3a;
+        --danger-soft: #fdeaea;
+        --warning: #a36a08;
+        --warning-soft: #fff2db;
+        --success: #116149;
+        --success-soft: #def4ea;
+        --info: #2559a7;
+        --info-soft: #eaf1fd;
+        --shadow: 0 18px 40px rgba(24, 48, 36, 0.08);
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        font-family: "Segoe UI", Arial, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(32, 99, 61, 0.08), transparent 380px),
+          radial-gradient(circle at top right, rgba(24, 48, 36, 0.06), transparent 320px),
+          var(--bg);
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .js-only {
+        display: none !important;
+      }
+
+      .js-ready .js-only {
+        display: inline-flex !important;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        padding: 22px 16px;
+        background: rgba(255, 255, 255, 0.88);
+        border-right: 1px solid var(--line);
+        backdrop-filter: blur(12px);
+        position: sticky;
+        top: 0;
+        height: 100vh;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--brand-soft), #ffffff);
+        border: 1px solid #dbe9de;
+        margin-bottom: 18px;
+      }
+
+      .brand-mark {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: var(--brand);
+        color: #fff;
+        font-weight: 700;
+      }
+
+      .brand-title {
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .brand-subtitle {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .nav {
+        display: grid;
+        gap: 8px;
+      }
+
+      .nav button {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        border-radius: 14px;
+        padding: 12px 14px;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: 0.2s ease;
+      }
+
+      .nav button:hover,
+      .nav button.active {
+        background: var(--brand-soft);
+        color: var(--brand);
+      }
+
+      .sidebar-footer {
+        margin-top: 18px;
+        padding: 14px;
+        border-radius: 16px;
+        background: var(--panel-soft);
+        border: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .main {
+        padding: 28px;
+      }
+
+      .topbar {
+        display: none;
+      }
+
+      .page-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .page-title {
+        margin: 0;
+        font-size: 28px;
+        line-height: 1.1;
+      }
+
+      .page-subtitle {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid rgba(219, 230, 217, 0.9);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+
+      .stat-card {
+        padding: 18px;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+      }
+
+      .columns-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .panel-body {
+        padding: 14px 18px 18px;
+      }
+
+      .list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .list-item {
+        padding: 14px;
+        border-radius: 14px;
+        background: var(--panel-soft);
+        border: 1px solid #edf3ec;
+      }
+
+      .list-item strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .meta {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .input,
+      .select,
+      .textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 12px;
+        padding: 11px 13px;
+        color: var(--text);
+        outline: none;
+      }
+
+      .textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      .input:focus,
+      .select:focus,
+      .textarea:focus {
+        border-color: #8fb49d;
+        box-shadow: 0 0 0 4px rgba(32, 99, 61, 0.08);
+      }
+
+      .filter-field {
+        min-width: 180px;
+        flex: 1;
+      }
+
+      .btn {
+        border: 0;
+        border-radius: 12px;
+        padding: 11px 15px;
+        cursor: pointer;
+        transition: 0.2s ease;
+        font-weight: 600;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .btn-primary {
+        background: var(--brand);
+        color: #fff;
+      }
+
+      .btn-secondary {
+        background: #fff;
+        color: var(--text);
+        border: 1px solid var(--line);
+      }
+
+      .btn-danger {
+        background: var(--danger);
+        color: #fff;
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: var(--muted);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .badge-ativo,
+      .badge-entregue,
+      .badge-concluido {
+        background: var(--success-soft);
+        color: var(--success);
+      }
+
+      .badge-prospect,
+      .badge-enviado,
+      .badge-aguardando_retorno {
+        background: var(--info-soft);
+        color: var(--info);
+      }
+
+      .badge-pausado,
+      .badge-pendente,
+      .badge-aguardando_postagem {
+        background: var(--warning-soft);
+        color: var(--warning);
+      }
+
+      .badge-encerrado,
+      .badge-atrasado {
+        background: var(--danger-soft);
+        color: var(--danger);
+      }
+
+      .status-select {
+        width: auto;
+        min-width: 132px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        padding: 7px 28px 7px 11px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        background-repeat: no-repeat;
+        background-size: 6px 6px, 6px 6px;
+        background-position: calc(100% - 14px) calc(50% - 1px), calc(100% - 10px) calc(50% - 1px);
+        background-image:
+          linear-gradient(45deg, transparent 50%, currentColor 50%),
+          linear-gradient(135deg, currentColor 50%, transparent 50%);
+        appearance: none;
+        -webkit-appearance: none;
+        box-shadow: none;
+      }
+
+      .status-select.status-ativo,
+      .status-select.status-entregue,
+      .status-select.status-concluido {
+        background-color: var(--success-soft);
+        color: var(--success);
+        border-color: #c8e7d8;
+      }
+
+      .status-select.status-prospect,
+      .status-select.status-enviado,
+      .status-select.status-aguardando_retorno {
+        background-color: var(--info-soft);
+        color: var(--info);
+        border-color: #d1ddf6;
+      }
+
+      .status-select.status-pausado,
+      .status-select.status-pendente,
+      .status-select.status-aguardando_postagem {
+        background-color: var(--warning-soft);
+        color: var(--warning);
+        border-color: #f1dfb6;
+      }
+
+      .status-select.status-encerrado,
+      .status-select.status-atrasado {
+        background-color: var(--danger-soft);
+        color: var(--danger);
+        border-color: #f0cccc;
+      }
+
+      .table-wrap {
+        overflow: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 14px 16px;
+        border-bottom: 1px solid #eef3ee;
+        vertical-align: top;
+        font-size: 14px;
+      }
+
+      th {
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        background: #f8faf7;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .action-link {
+        background: transparent;
+        border: 0;
+        color: var(--brand);
+        cursor: pointer;
+        padding: 0;
+        font-weight: 600;
+      }
+
+      .action-link.danger {
+        color: var(--danger);
+      }
+
+      .empty {
+        padding: 36px 20px;
+        text-align: center;
+        color: var(--muted);
+      }
+
+      .summary-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .chip {
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .chip strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .task-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 16px;
+        border-radius: 16px;
+        border: 1px solid #ebf2ea;
+        background: #fff;
+      }
+
+      .task-card.overdue {
+        background: #fff7f7;
+        border-color: #f0cccc;
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 26, 20, 0.45);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        z-index: 1000;
+      }
+
+      .modal-backdrop.open {
+        display: flex;
+      }
+
+      .modal {
+        width: min(960px, 100%);
+        max-height: calc(100vh - 48px);
+        overflow: auto;
+        background: #fff;
+        border-radius: 24px;
+        box-shadow: 0 28px 80px rgba(15, 26, 20, 0.22);
+      }
+
+      .modal.small {
+        width: min(560px, 100%);
+      }
+
+      .modal-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--line);
+        position: sticky;
+        top: 0;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(8px);
+      }
+
+      .modal-body {
+        padding: 18px 20px 22px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .form-full {
+        grid-column: 1 / -1;
+      }
+
+      .field label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+      }
+
+      .tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+
+      .tab {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--muted);
+        border-radius: 999px;
+        padding: 9px 12px;
+        cursor: pointer;
+      }
+
+      .tab.active {
+        background: var(--brand-soft);
+        color: var(--brand);
+        border-color: #cbe1d3;
+      }
+
+      .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 16px;
+      }
+
+      .profile-metric {
+        padding: 16px;
+      }
+
+      .details-grid {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+      }
+
+      .details-grid > div {
+        padding: 12px 0;
+        border-bottom: 1px solid #eef3ee;
+      }
+
+      .details-grid .label {
+        color: var(--muted);
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 1100px) {
+        .stats-grid,
+        .columns-3 {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 860px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          display: none;
+        }
+
+        .topbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 14px 18px;
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          background: rgba(255, 255, 255, 0.94);
+          border-bottom: 1px solid var(--line);
+          backdrop-filter: blur(10px);
+        }
+
+        .topbar-nav {
+          display: flex;
+          gap: 8px;
+          overflow: auto;
+          padding: 0 18px 14px;
+          background: rgba(255, 255, 255, 0.94);
+          border-bottom: 1px solid var(--line);
+          position: sticky;
+          top: 58px;
+          z-index: 49;
+        }
+
+      .topbar-nav button {
+          white-space: nowrap;
+          border: 1px solid var(--line);
+          background: #fff;
+          color: var(--muted);
+          border-radius: 999px;
+          padding: 10px 12px;
+          cursor: pointer;
+        }
+
+        .topbar-nav button.active {
+          background: var(--brand-soft);
+          color: var(--brand);
+          border-color: #cbe1d3;
+        }
+
+        .main {
+          padding: 18px;
+        }
+
+        .page-head {
+          flex-direction: column;
+        }
+
+        .stats-grid,
+        .columns-3,
+        .form-grid,
+        .profile-grid,
+        .details-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .task-card {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <div>
+        <strong>AtletasPro HTML</strong>
+        <div class="muted" style="font-size: 12px;">MVP compartilhado via Supabase</div>
+      </div>
+      <button class="btn btn-secondary js-only" type="button" onclick="App.refreshFromServer(true)">Atualizar</button>
+    </div>
+    <div class="topbar-nav" id="topbarNav"></div>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">AP</div>
+          <div>
+            <div class="brand-title">AtletasPro</div>
+            <div class="brand-subtitle">Dados compartilhados online</div>
+          </div>
+        </div>
+        <nav class="nav" id="sidebarNav"></nav>
+        <div class="sidebar-footer">
+          Esta versao usa Supabase como banco compartilhado e atualiza automaticamente.
+          <div style="margin-top: 12px;">
+            <button class="btn btn-secondary js-only" type="button" onclick="App.refreshFromServer(true)">Atualizar</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main">
+      <div id="app">
+          <div class="card empty">
+            Conectando ao banco compartilhado...
+            <div class="meta" style="margin-top: 10px;">Se esta pagina abrir vazia no mobile, use "Abrir no navegador" em vez do preview do Drive.</div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div class="modal-backdrop" id="modalBackdrop" onclick="App.maybeCloseModal(event)">
+      <div class="modal" id="modal"></div>
+    </div>
+
+    <script>
+      const STORAGE_KEY = "atletas_mvp_html_db_v1";
+      const SUPABASE_URL = "https://qkphvlfurbnrlcoyuuim.supabase.co";
+      const SUPABASE_ANON_KEY = "sb_publishable__EwQwgsukP7F19sDJ0CVQQ__J3UamJC";
+      const AUTO_REFRESH_MS = 10000;
+
+      const NAV_ITEMS = [
+        { key: "dashboard", label: "Dashboard", icon: "📊" },
+        { key: "atletas", label: "Atletas", icon: "🏃" },
+        { key: "posts", label: "Posts", icon: "📱" },
+        { key: "conversas", label: "Conversas", icon: "💬" },
+        { key: "produtos", label: "Produtos", icon: "📦" },
+        { key: "tarefas", label: "Tarefas", icon: "✅" }
+      ];
+
+      const STATUS_ATLETA = ["ativo", "prospect", "pausado", "encerrado"];
+      const STATUS_PRODUTO = ["enviado", "entregue", "aguardando_postagem"];
+      const STATUS_TAREFA = ["pendente", "aguardando_retorno", "concluido", "atrasado"];
+      const PLATAFORMAS = ["instagram", "tiktok", "youtube"];
+      const TIPOS_POST = ["story", "reel", "post", "tiktok", "youtube"];
+      const CANAIS = ["whatsapp", "instagram", "email"];
+      const MODALIDADES = ["Surf", "Skate", "Crossfit", "Corrida", "Fitness", "Futebol", "Basquete", "Natacao", "Ciclismo", "MMA", "Yoga", "Outro"];
+
+      const App = {
+        state: {
+          view: "dashboard",
+          modalOpen: false,
+          profileTab: "dados",
+          returnToProfile: null,
+          syncing: false,
+          filters: {
+            atletas: { search: "", status: "", modalidade: "" },
+            posts: { atletaId: "", plataforma: "", tipo: "" },
+            conversas: { atletaId: "" },
+            produtos: { status: "" },
+            tarefas: { status: "" }
+          }
+        },
+
+        async init() {
+          try {
+            document.body.className += `${document.body.className ? " " : ""}js-ready`;
+            this.renderNav();
+            this.renderLoading("Conectando ao banco compartilhado...");
+            await this.refreshFromServer(false);
+            this.startAutoRefresh();
+          } catch (error) {
+            const root = document.getElementById("app");
+            root.innerHTML = `
+              <div class="card empty">
+                Nao foi possivel carregar o sistema.<br />
+                Verifique se o SQL do Supabase foi executado e abra o arquivo direto no navegador.
+              </div>
+            `;
+            console.error(error);
+          }
+        },
+
+        renderLoading(message) {
+          const root = document.getElementById("app");
+          root.innerHTML = `
+            <div class="card empty">
+              ${this.escape(message || "Carregando...")}
+            </div>
+          `;
+        },
+
+        startAutoRefresh() {
+          if (this.autoRefreshTimer) {
+            clearInterval(this.autoRefreshTimer);
+          }
+
+          this.autoRefreshTimer = window.setInterval(() => {
+            this.refreshFromServer(false, true);
+          }, AUTO_REFRESH_MS);
+        },
+
+        supabaseHeaders(prefer) {
+          const headers = {
+            apikey: SUPABASE_ANON_KEY
+          };
+
+          if (prefer) {
+            headers.Prefer = prefer;
+          }
+
+          return headers;
+        },
+
+        async supabaseRequest(path, options) {
+          const config = options || {};
+          const method = config.method || "GET";
+          const headers = this.supabaseHeaders(config.prefer);
+
+          if (method !== "GET" && method !== "DELETE") {
+            headers["Content-Type"] = "application/json";
+          }
+
+          const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+            method,
+            headers,
+            body: config.body ? JSON.stringify(config.body) : undefined
+          });
+
+          const text = await response.text();
+
+          if (!response.ok) {
+            let message = "Nao foi possivel falar com o banco compartilhado.";
+            try {
+              const payload = text ? JSON.parse(text) : null;
+              if (payload && (payload.message || payload.error_description || payload.hint || payload.details)) {
+                message = payload.message || payload.error_description || payload.hint || payload.details;
+              }
+            } catch (error) {
+              if (text) {
+                message = text;
+              }
+            }
+            alert(message);
+            throw new Error(text || `Erro ${response.status}`);
+          }
+
+          return text ? JSON.parse(text) : null;
+        },
+
+        emptyToNull(value) {
+          if (value == null) return null;
+          const normalized = String(value).trim();
+          return normalized ? normalized : null;
+        },
+
+        numberOrNull(value) {
+          if (value == null || value === "") return null;
+          const numberValue = Number(value);
+          return Number.isNaN(numberValue) ? null : numberValue;
+        },
+
+        getStorage() {
+          try {
+            return window.localStorage;
+          } catch (error) {
+            return null;
+          }
+        },
+
+        nowIso() {
+          return new Date().toISOString();
+        },
+
+        today() {
+          return new Date().toISOString().slice(0, 10);
+        },
+
+        async loadDb() {
+          const result = await Promise.all([
+            this.supabaseRequest("athletes?select=*"),
+            this.supabaseRequest("posts?select=*"),
+            this.supabaseRequest("conversations?select=*"),
+            this.supabaseRequest("products?select=*"),
+            this.supabaseRequest("tasks?select=*"),
+            this.supabaseRequest("couponSales?select=*")
+          ]);
+
+          return this.normalizeDb({
+            meta: {},
+            athletes: result[0] || [],
+            posts: result[1] || [],
+            conversations: result[2] || [],
+            products: result[3] || [],
+            tasks: result[4] || [],
+            couponSales: result[5] || []
+          });
+        },
+
+        saveDb() {
+          return null;
+        },
+
+        normalizeDb(db) {
+          db.couponSales = db.couponSales || [];
+          db.meta = db.meta || {};
+          db.meta.couponSales = db.meta.couponSales || (
+            db.couponSales.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1
+          );
+          db.tasks = (db.tasks || []).map((item) => {
+            item.status = item.status === "entregue" ? "concluido" : item.status;
+            return item;
+          });
+
+          return db;
+        },
+
+        resetSeed() {
+          alert("Na versao online, o seed inicial e feito pelo SQL do Supabase. Use Atualizar para recarregar os dados compartilhados.");
+        },
+
+        async refreshFromServer(showLoading, silent) {
+          if (this.state.syncing) return;
+          if (silent && this.state.modalOpen) return;
+
+          this.state.syncing = true;
+
+          if (showLoading) {
+            this.renderLoading("Atualizando dados compartilhados...");
+          }
+
+          try {
+            this.db = await this.loadDb();
+            this.renderNav();
+            if (!silent || !this.state.modalOpen) {
+              this.render();
+            }
+          } finally {
+            this.state.syncing = false;
+          }
+        },
+
+        seedData() {
+          const stamp = this.nowIso();
+          return {
+            meta: {
+              athletes: 7,
+              posts: 11,
+              conversations: 8,
+              products: 10,
+              tasks: 10,
+              couponSales: 7
+            },
+            athletes: [
+              { id: 1, nome: "Lucas Ferreira", instagram: "@lucasferreira", tiktok: "@lucasferreira", email: "lucas@email.com", whatsapp: "(11) 99999-0001", cidade: "Sao Paulo - SP", modalidade: "Surf", numeroSeguidores: 125000, dataInicioParceria: "2025-03-01", status: "ativo", linkBio: "", linktree: "", agenciaResponsavel: "Wave Agency", cupomAtleta: "LUCAS10", comissaoPercentual: 10, createdAt: stamp, updatedAt: stamp },
+              { id: 2, nome: "Marina Costa", instagram: "@marinacosta.fit", tiktok: "@marinacosta", email: "marina@email.com", whatsapp: "(21) 99999-0002", cidade: "Rio de Janeiro - RJ", modalidade: "Crossfit", numeroSeguidores: 310000, dataInicioParceria: "2025-01-15", status: "ativo", linkBio: "", linktree: "https://linktr.ee/marinacosta", agenciaResponsavel: "", cupomAtleta: "MARINA15", comissaoPercentual: 15, createdAt: stamp, updatedAt: stamp },
+              { id: 3, nome: "Pedro Alves", instagram: "@pedroalves.skate", tiktok: "", email: "pedro@email.com", whatsapp: "(11) 99999-0003", cidade: "Santos - SP", modalidade: "Skate", numeroSeguidores: 89000, dataInicioParceria: "2025-02-10", status: "ativo", linkBio: "", linktree: "", agenciaResponsavel: "", cupomAtleta: "PEDRO10", comissaoPercentual: 10, createdAt: stamp, updatedAt: stamp },
+              { id: 4, nome: "Ana Beatriz Silva", instagram: "@anabsilva", tiktok: "@anabsilva", email: "ana@email.com", whatsapp: "(31) 99999-0004", cidade: "Belo Horizonte - MG", modalidade: "Corrida", numeroSeguidores: 45000, dataInicioParceria: "", status: "prospect", linkBio: "", linktree: "", agenciaResponsavel: "", cupomAtleta: "", comissaoPercentual: "", createdAt: stamp, updatedAt: stamp },
+              { id: 5, nome: "Gabriel Santos", instagram: "@gabrielsantos.mma", tiktok: "", email: "gabriel@email.com", whatsapp: "(41) 99999-0005", cidade: "Curitiba - PR", modalidade: "MMA", numeroSeguidores: 220000, dataInicioParceria: "2024-11-01", status: "pausado", linkBio: "", linktree: "", agenciaResponsavel: "Fight Management", cupomAtleta: "GABRIEL20", comissaoPercentual: 12, createdAt: stamp, updatedAt: stamp },
+              { id: 6, nome: "Juliana Rocha", instagram: "@jurocha.yoga", tiktok: "@jurocha", email: "juliana@email.com", whatsapp: "(48) 99999-0006", cidade: "Florianopolis - SC", modalidade: "Yoga", numeroSeguidores: 175000, dataInicioParceria: "2025-02-20", status: "ativo", linkBio: "https://julianayoga.com", linktree: "", agenciaResponsavel: "", cupomAtleta: "JUROCHA10", comissaoPercentual: 10, createdAt: stamp, updatedAt: stamp }
+            ],
+            posts: [
+              { id: 1, atletaId: 1, plataforma: "instagram", linkPost: "https://instagram.com/reel/1", tipo: "reel", dataPublicacao: "2026-03-20", campanhaVinculada: "Verao 2026", views: 45000, likes: 3200, comentarios: 180, saves: 420, compartilhamentos: 95, createdAt: stamp, updatedAt: stamp },
+              { id: 2, atletaId: 1, plataforma: "tiktok", linkPost: "https://tiktok.com/@lucas/video/2", tipo: "tiktok", dataPublicacao: "2026-03-22", campanhaVinculada: "Verao 2026", views: 120000, likes: 8500, comentarios: 340, saves: 1200, compartilhamentos: 560, createdAt: stamp, updatedAt: stamp },
+              { id: 3, atletaId: 1, plataforma: "instagram", linkPost: "", tipo: "story", dataPublicacao: "2026-03-25", campanhaVinculada: "", views: 18000, likes: 0, comentarios: 0, saves: 0, compartilhamentos: 0, createdAt: stamp, updatedAt: stamp },
+              { id: 4, atletaId: 2, plataforma: "instagram", linkPost: "https://instagram.com/p/4", tipo: "post", dataPublicacao: "2026-03-18", campanhaVinculada: "Lancamento Linha Fit", views: 95000, likes: 12000, comentarios: 450, saves: 3200, compartilhamentos: 280, createdAt: stamp, updatedAt: stamp },
+              { id: 5, atletaId: 2, plataforma: "instagram", linkPost: "https://instagram.com/reel/5", tipo: "reel", dataPublicacao: "2026-03-24", campanhaVinculada: "Lancamento Linha Fit", views: 280000, likes: 22000, comentarios: 890, saves: 5600, compartilhamentos: 1200, createdAt: stamp, updatedAt: stamp },
+              { id: 6, atletaId: 2, plataforma: "tiktok", linkPost: "", tipo: "tiktok", dataPublicacao: "2026-03-26", campanhaVinculada: "", views: 450000, likes: 35000, comentarios: 1200, saves: 8900, compartilhamentos: 3400, createdAt: stamp, updatedAt: stamp },
+              { id: 7, atletaId: 3, plataforma: "instagram", linkPost: "", tipo: "reel", dataPublicacao: "2026-03-15", campanhaVinculada: "Skate Day", views: 38000, likes: 2800, comentarios: 120, saves: 340, compartilhamentos: 78, createdAt: stamp, updatedAt: stamp },
+              { id: 8, atletaId: 3, plataforma: "youtube", linkPost: "https://youtube.com/watch?v=8", tipo: "youtube", dataPublicacao: "2026-03-28", campanhaVinculada: "", views: 15000, likes: 1200, comentarios: 85, saves: 0, compartilhamentos: 45, createdAt: stamp, updatedAt: stamp },
+              { id: 9, atletaId: 6, plataforma: "instagram", linkPost: "", tipo: "reel", dataPublicacao: "2026-03-21", campanhaVinculada: "Mindfulness March", views: 65000, likes: 7800, comentarios: 320, saves: 4500, compartilhamentos: 890, createdAt: stamp, updatedAt: stamp },
+              { id: 10, atletaId: 6, plataforma: "instagram", linkPost: "", tipo: "post", dataPublicacao: "2026-03-27", campanhaVinculada: "", views: 42000, likes: 5200, comentarios: 210, saves: 2800, compartilhamentos: 340, createdAt: stamp, updatedAt: stamp }
+            ],
+            conversations: [
+              { id: 1, atletaId: 1, dataConversa: "2026-03-20", canal: "whatsapp", resumoConversa: "Alinhamento sobre campanha de Verao 2026. Lucas confirmou disponibilidade para gravar 3 reels na praia.", proximoPasso: "Enviar briefing ate sexta", createdAt: stamp, updatedAt: stamp },
+              { id: 2, atletaId: 1, dataConversa: "2026-03-25", canal: "instagram", resumoConversa: "Lucas enviou previa do reel. Conteudo aprovado com pequeno ajuste na CTA final.", proximoPasso: "Confirmar publicacao para segunda", createdAt: stamp, updatedAt: stamp },
+              { id: 3, atletaId: 2, dataConversa: "2026-03-18", canal: "email", resumoConversa: "Negociacao de renovacao de contrato. Marina pediu aumento de comissao para 18 por cento.", proximoPasso: "Apresentar contraproposta ate quarta", createdAt: stamp, updatedAt: stamp },
+              { id: 4, atletaId: 2, dataConversa: "2026-03-26", canal: "whatsapp", resumoConversa: "Marina confirmou recebimento dos produtos novos. Vai comecar a produzir conteudo amanha.", proximoPasso: "Acompanhar publicacoes", createdAt: stamp, updatedAt: stamp },
+              { id: 5, atletaId: 3, dataConversa: "2026-03-15", canal: "whatsapp", resumoConversa: "Pedro sugeriu parceria com evento local de skate em Santos.", proximoPasso: "Verificar logistica e custos do evento", createdAt: stamp, updatedAt: stamp },
+              { id: 6, atletaId: 4, dataConversa: "2026-03-22", canal: "instagram", resumoConversa: "Primeiro contato com Ana Beatriz. Demonstrou interesse em parceria.", proximoPasso: "Enviar proposta formal", createdAt: stamp, updatedAt: stamp },
+              { id: 7, atletaId: 6, dataConversa: "2026-03-27", canal: "whatsapp", resumoConversa: "Juliana propos serie de videos Yoga para Atletas com crossover entre parceiros.", proximoPasso: "Discutir internamente viabilidade", createdAt: stamp, updatedAt: stamp }
+            ],
+            products: [
+              { id: 1, atletaId: 1, produto: "Camiseta Dry Fit", tamanho: "G", quantidade: 3, dataEnvio: "2026-03-10", valorProduto: 89.9, custoTotal: 269.7, status: "entregue", createdAt: stamp, updatedAt: stamp },
+              { id: 2, atletaId: 1, produto: "Bermuda Training", tamanho: "M", quantidade: 2, dataEnvio: "2026-03-10", valorProduto: 129.9, custoTotal: 259.8, status: "entregue", createdAt: stamp, updatedAt: stamp },
+              { id: 3, atletaId: 2, produto: "Legging Performance", tamanho: "P", quantidade: 4, dataEnvio: "2026-03-15", valorProduto: 159.9, custoTotal: 639.6, status: "entregue", createdAt: stamp, updatedAt: stamp },
+              { id: 4, atletaId: 2, produto: "Top Esportivo", tamanho: "P", quantidade: 3, dataEnvio: "2026-03-15", valorProduto: 79.9, custoTotal: 239.7, status: "aguardando_postagem", createdAt: stamp, updatedAt: stamp },
+              { id: 5, atletaId: 2, produto: "Tenis Running Pro", tamanho: "37", quantidade: 1, dataEnvio: "2026-03-20", valorProduto: 449.9, custoTotal: 449.9, status: "enviado", createdAt: stamp, updatedAt: stamp },
+              { id: 6, atletaId: 3, produto: "Tenis Skate Classic", tamanho: "42", quantidade: 2, dataEnvio: "2026-03-08", valorProduto: 349.9, custoTotal: 699.8, status: "entregue", createdAt: stamp, updatedAt: stamp },
+              { id: 7, atletaId: 3, produto: "Bone Snapback", tamanho: "Unico", quantidade: 2, dataEnvio: "2026-03-08", valorProduto: 69.9, custoTotal: 139.8, status: "aguardando_postagem", createdAt: stamp, updatedAt: stamp },
+              { id: 8, atletaId: 6, produto: "Conjunto Yoga Premium", tamanho: "M", quantidade: 2, dataEnvio: "2026-03-18", valorProduto: 199.9, custoTotal: 399.8, status: "entregue", createdAt: stamp, updatedAt: stamp },
+              { id: 9, atletaId: 6, produto: "Tapete de Yoga", tamanho: "Unico", quantidade: 1, dataEnvio: "2026-03-18", valorProduto: 189.9, custoTotal: 189.9, status: "entregue", createdAt: stamp, updatedAt: stamp }
+            ],
+            couponSales: [
+              { id: 1, atletaId: 1, dataVenda: "2026-03-14", valorTotal: 1850, quantidadePedidos: 24, observacao: "Campanha de verao com reel", createdAt: stamp, updatedAt: stamp },
+              { id: 2, atletaId: 1, dataVenda: "2026-03-25", valorTotal: 920, quantidadePedidos: 11, observacao: "Pico apos story com CTA", createdAt: stamp, updatedAt: stamp },
+              { id: 3, atletaId: 2, dataVenda: "2026-03-19", valorTotal: 4680, quantidadePedidos: 39, observacao: "Lancamento Linha Fit", createdAt: stamp, updatedAt: stamp },
+              { id: 4, atletaId: 2, dataVenda: "2026-03-27", valorTotal: 2310, quantidadePedidos: 17, observacao: "TikTok com cupom", createdAt: stamp, updatedAt: stamp },
+              { id: 5, atletaId: 3, dataVenda: "2026-03-18", valorTotal: 760, quantidadePedidos: 8, observacao: "Skate Day", createdAt: stamp, updatedAt: stamp },
+              { id: 6, atletaId: 6, dataVenda: "2026-03-23", valorTotal: 1540, quantidadePedidos: 14, observacao: "Serie yoga atletas", createdAt: stamp, updatedAt: stamp }
+            ],
+            tasks: [
+              { id: 1, atletaId: 1, tarefa: "Gravar 3 reels na praia para campanha Verao", campanha: "Verao 2026", prazo: "2026-04-05", status: "pendente", createdAt: stamp, updatedAt: stamp },
+              { id: 2, atletaId: 1, tarefa: "Publicar story com cupom de desconto", campanha: "Verao 2026", prazo: "2026-03-28", status: "concluido", createdAt: stamp, updatedAt: stamp },
+              { id: 3, atletaId: 2, tarefa: "Fotos com nova colecao Linha Fit", campanha: "Lancamento Linha Fit", prazo: "2026-04-02", status: "pendente", createdAt: stamp, updatedAt: stamp },
+              { id: 4, atletaId: 2, tarefa: "Enviar relatorio de metricas dos ultimos 3 posts", campanha: "", prazo: "2026-03-25", status: "pendente", createdAt: stamp, updatedAt: stamp },
+              { id: 5, atletaId: 3, tarefa: "Video unboxing dos novos tenis", campanha: "", prazo: "2026-03-20", status: "pendente", createdAt: stamp, updatedAt: stamp },
+              { id: 6, atletaId: 3, tarefa: "Cobertura do evento Skate Day Santos", campanha: "Skate Day", prazo: "2026-04-10", status: "pendente", createdAt: stamp, updatedAt: stamp },
+              { id: 7, atletaId: 4, tarefa: "Enviar proposta de parceria formal", campanha: "", prazo: "2026-04-01", status: "pendente", createdAt: stamp, updatedAt: stamp },
+              { id: 8, atletaId: 6, tarefa: "Gravar serie Yoga para Atletas - Episodio Piloto", campanha: "Mindfulness March", prazo: "2026-04-08", status: "pendente", createdAt: stamp, updatedAt: stamp },
+              { id: 9, atletaId: 6, tarefa: "Post de review do tapete de yoga", campanha: "", prazo: "2026-03-30", status: "pendente", createdAt: stamp, updatedAt: stamp }
+            ]
+          };
+        },
+
+        renderNav() {
+          const navHtml = NAV_ITEMS.map((item) => `
+            <button type="button" class="${this.state.view === item.key ? "active" : ""}" onclick="App.setView('${item.key}')">
+              <span>${item.icon}</span>
+              <span>${item.label}</span>
+            </button>
+          `).join("");
+
+          document.getElementById("sidebarNav").innerHTML = navHtml;
+          document.getElementById("topbarNav").innerHTML = navHtml;
+        },
+
+        setView(view) {
+          this.state.view = view;
+          this.renderNav();
+          this.render();
+        },
+
+        render() {
+          const root = document.getElementById("app");
+          if (this.state.view === "dashboard") root.innerHTML = this.renderDashboard();
+          if (this.state.view === "atletas") root.innerHTML = this.renderAthletes();
+          if (this.state.view === "posts") root.innerHTML = this.renderPosts();
+          if (this.state.view === "conversas") root.innerHTML = this.renderConversations();
+          if (this.state.view === "produtos") root.innerHTML = this.renderProducts();
+          if (this.state.view === "tarefas") root.innerHTML = this.renderTasks();
+        },
+
+        athleteById(id) {
+          return this.db.athletes.find((item) => Number(item.id) === Number(id));
+        },
+
+        athleteNameById(id) {
+          const athlete = this.athleteById(id);
+          return athlete && athlete.nome ? athlete.nome : "-";
+        },
+
+        escape(value) {
+          const map = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;"
+          };
+          return String(value == null ? "" : value).replace(/[&<>"]/g, (char) => map[char] || char);
+        },
+
+        formatDate(value) {
+          if (!value) return "-";
+          const [year, month, day] = String(value).split("-");
+          if (!year || !month || !day) return value;
+          return `${day}/${month}/${year}`;
+        },
+
+        formatCurrency(value) {
+          return Number(value || 0).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL"
+          });
+        },
+
+        formatNumber(value) {
+          const num = Number(value || 0);
+          if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+          if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+          return String(num);
+        },
+
+        countPostsByAthlete(athleteId) {
+          return this.db.posts.filter((item) => Number(item.atletaId) === Number(athleteId)).length;
+        },
+
+        totalProductCostByAthlete(athleteId) {
+          return this.db.products
+            .filter((item) => Number(item.atletaId) === Number(athleteId))
+            .reduce((sum, item) => sum + Number(item.custoTotal || 0), 0);
+        },
+
+        couponSalesByAthlete(athleteId) {
+          return this.db.couponSales
+            .filter((item) => Number(item.atletaId) === Number(athleteId))
+            .sort((a, b) => String(b.dataVenda || "").localeCompare(String(a.dataVenda || "")));
+        },
+
+        totalCouponSalesByAthlete(athleteId) {
+          return this.couponSalesByAthlete(athleteId)
+            .reduce((sum, item) => sum + Number(item.valorTotal || 0), 0);
+        },
+
+        totalCouponOrdersByAthlete(athleteId) {
+          return this.couponSalesByAthlete(athleteId)
+            .reduce((sum, item) => sum + Number(item.quantidadePedidos || 0), 0);
+        },
+
+        estimatedCommissionByAthlete(athleteId) {
+          const athlete = this.athleteById(athleteId);
+          const commission = Number(athlete && athlete.comissaoPercentual ? athlete.comissaoPercentual : 0);
+          return this.totalCouponSalesByAthlete(athleteId) * (commission / 100);
+        },
+
+        athleteProfileTrigger(athleteId, label) {
+          if (!athleteId) return this.escape(label || "-");
+          return `<button class="action-link" type="button" onclick="App.openAthleteProfile(${Number(athleteId)})">${this.escape(label || "-")}</button>`;
+        },
+
+        computedTaskStatus(task) {
+          if (task.status === "concluido" || task.status === "entregue") return "concluido";
+          if (task.status === "aguardando_retorno") {
+            if (task.prazo && task.prazo < this.today()) return "atrasado";
+            return "aguardando_retorno";
+          }
+          if (task.status === "atrasado") return "atrasado";
+          if (task.prazo && task.prazo < this.today()) return "atrasado";
+          return "pendente";
+        },
+
+        statusList(kind) {
+          if (kind === "athlete") return STATUS_ATLETA;
+          if (kind === "product") return STATUS_PRODUTO;
+          if (kind === "task") return STATUS_TAREFA;
+          return [];
+        },
+
+        statusLabel(status) {
+          return this.escape(String(status || "").split("_").join(" "));
+        },
+
+        statusControl(kind, id, currentStatus, athleteId, tab) {
+          const list = this.statusList(kind);
+          const status = currentStatus || "";
+          const contextArgs = athleteId ? `, ${Number(athleteId)}, '${tab || "dados"}'` : "";
+          return `
+            <select class="status-select status-${status}" onchange="App.changeStatus('${kind}', ${Number(id)}, this.value${contextArgs})">
+              ${list.map((item) => `<option value="${item}" ${item === status ? "selected" : ""}>${this.statusLabel(item)}</option>`).join("")}
+            </select>
+          `;
+        },
+
+        badge(status) {
+          return `<span class="badge badge-${status}">${this.escape(String(status || "").split("_").join(" "))}</span>`;
+        },
+
+        async saveRecord(collection, record, id) {
+          const payload = { ...record };
+          delete payload.id;
+
+          if (id) {
+            const rows = await this.supabaseRequest(`${collection}?id=eq.${encodeURIComponent(id)}`, {
+              method: "PATCH",
+              prefer: "return=representation",
+              body: payload
+            });
+            return rows && rows[0] ? rows[0] : null;
+          }
+
+          const rows = await this.supabaseRequest(collection, {
+            method: "POST",
+            prefer: "return=representation",
+            body: [payload]
+          });
+          return rows && rows[0] ? rows[0] : null;
+        },
+
+        async deleteRecord(collection, id) {
+          await this.supabaseRequest(`${collection}?id=eq.${encodeURIComponent(id)}`, {
+            method: "DELETE"
+          });
+        },
+
+        async deleteWhere(collection, filters) {
+          const query = Object.keys(filters)
+            .map((key) => `${encodeURIComponent(key)}=eq.${encodeURIComponent(filters[key])}`)
+            .join("&");
+
+          await this.supabaseRequest(`${collection}?${query}`, {
+            method: "DELETE"
+          });
+        },
+
+        nextId(collectionKey) {
+          const next = this.db.meta[collectionKey];
+          this.db.meta[collectionKey] += 1;
+          return next;
+        },
+
+        addDays(dateValue, days) {
+          const base = dateValue ? new Date(`${dateValue}T12:00:00`) : new Date();
+          base.setDate(base.getDate() + days);
+          return base.toISOString().slice(0, 10);
+        },
+
+        setReturnToProfile(athleteId, tab) {
+          this.state.returnToProfile = athleteId ? {
+            athleteId: Number(athleteId),
+            tab: tab || "dados"
+          } : null;
+        },
+
+        async afterEntitySave() {
+          const context = this.state.returnToProfile;
+          this.state.returnToProfile = null;
+          await this.refreshFromServer(false);
+
+          if (context) {
+            this.openAthleteProfile(context.athleteId, context.tab);
+            return;
+          }
+
+          this.closeModal();
+          this.render();
+        },
+
+        cancelModalFlow() {
+          const context = this.state.returnToProfile;
+          this.state.returnToProfile = null;
+          this.closeModal();
+          if (context) {
+            this.openAthleteProfile(context.athleteId, context.tab);
+          }
+        },
+
+        async createAutoTask({ atletaId, tarefa, campanha, prazo, origemTipo, origemId, origemAcao }) {
+          if (!tarefa) return null;
+
+          const exists = this.db.tasks.find((item) =>
+            item.origemTipo === origemTipo &&
+            Number(item.origemId) === Number(origemId) &&
+            item.origemAcao === origemAcao
+          );
+
+          if (exists) return exists;
+
+          const record = {
+            atletaId: Number(atletaId),
+            tarefa: String(tarefa).trim(),
+            campanha: String(campanha || "").trim(),
+            prazo: prazo || this.addDays(this.today(), 3),
+            status: "pendente",
+            origemTipo,
+            origemId: Number(origemId),
+            origemAcao,
+            createdAt: this.nowIso(),
+            updatedAt: this.nowIso()
+          };
+
+          try {
+            return await this.saveRecord("tasks", record, null);
+          } catch (error) {
+            return null;
+          }
+        },
+
+        async maybeCreateProductTasks(record, previousStatus, isNewRecord) {
+          if (isNewRecord) {
+            await this.createAutoTask({
+              atletaId: record.atletaId,
+              tarefa: `Acompanhar envio do produto ${record.produto}`,
+              campanha: "",
+              prazo: this.addDays(record.dataEnvio || this.today(), 3),
+              origemTipo: "produto",
+              origemId: record.id,
+              origemAcao: "acompanhar_envio"
+            });
+          }
+
+          if (record.status === "entregue" && previousStatus !== "entregue") {
+            await this.createAutoTask({
+              atletaId: record.atletaId,
+              tarefa: `Confirmar postagem apos recebimento do produto ${record.produto}`,
+              campanha: "",
+              prazo: this.addDays(this.today(), 5),
+              origemTipo: "produto",
+              origemId: record.id,
+              origemAcao: "aguardar_postagem"
+            });
+          }
+        },
+
+        async changeStatus(kind, id, value, athleteId, tab) {
+          this.setReturnToProfile(athleteId, tab);
+
+          if (kind === "athlete") {
+            const record = this.db.athletes.find((item) => Number(item.id) === Number(id));
+            if (!record) return;
+            record.status = value;
+            record.updatedAt = this.nowIso();
+            await this.saveRecord("athletes", record, record.id);
+          }
+
+          if (kind === "product") {
+            const record = this.db.products.find((item) => Number(item.id) === Number(id));
+            if (!record) return;
+            const previousStatus = record.status;
+            record.status = value;
+            record.updatedAt = this.nowIso();
+            await this.saveRecord("products", record, record.id);
+            await this.maybeCreateProductTasks(record, previousStatus, false);
+          }
+
+          if (kind === "task") {
+            const record = this.db.tasks.find((item) => Number(item.id) === Number(id));
+            if (!record) return;
+            record.status = value;
+            record.updatedAt = this.nowIso();
+            await this.saveRecord("tasks", record, record.id);
+          }
+
+          await this.afterEntitySave();
+        },
+
+        openModal(title, bodyHtml, small) {
+          const modal = document.getElementById("modal");
+          modal.className = `modal${small ? " small" : ""}`;
+          modal.innerHTML = `
+            <div class="modal-head">
+              <div>
+                <div style="font-weight: 700; font-size: 20px;">${title}</div>
+              </div>
+              <button class="btn btn-secondary" type="button" onclick="App.cancelModalFlow()">Fechar</button>
+            </div>
+            <div class="modal-body">${bodyHtml}</div>
+          `;
+          document.getElementById("modalBackdrop").classList.add("open");
+          this.state.modalOpen = true;
+        },
+
+        closeModal() {
+          document.getElementById("modalBackdrop").classList.remove("open");
+          document.getElementById("modal").innerHTML = "";
+          this.state.modalOpen = false;
+        },
+
+        maybeCloseModal(event) {
+          if (event.target.id === "modalBackdrop") this.cancelModalFlow();
+        },
+
+        sectionHeader(title, subtitle, actionHtml) {
+          return `
+            <div class="page-head">
+              <div>
+                <h1 class="page-title">${title}</h1>
+                <div class="page-subtitle">${subtitle}</div>
+              </div>
+              <div class="actions">${actionHtml || ""}</div>
+            </div>
+          `;
+        },
+
+        renderDashboard() {
+          const totalAtletas = this.db.athletes.length;
+          const atletasAtivos = this.db.athletes.filter((item) => item.status === "ativo").length;
+          const totalPosts = this.db.posts.length;
+          const tarefasPendentes = this.db.tasks.filter((item) => {
+            const status = this.computedTaskStatus(item);
+            return status === "pendente" || status === "aguardando_retorno";
+          }).length;
+          const tarefasAtrasadas = this.db.tasks.filter((item) => this.computedTaskStatus(item) === "atrasado").length;
+          const custoTotalProdutos = this.db.products.reduce((sum, item) => sum + Number(item.custoTotal || 0), 0);
+
+          const proximasTarefas = this.db.tasks.slice()
+            .filter((item) => this.computedTaskStatus(item) !== "concluido")
+            .sort((a, b) => String(a.prazo).localeCompare(String(b.prazo)))
+            .slice(0, 5);
+
+          const ultimosPosts = this.db.posts.slice()
+            .sort((a, b) => String(b.dataPublicacao || "").localeCompare(String(a.dataPublicacao || "")))
+            .slice(0, 5);
+
+          const ultimasConversas = this.db.conversations.slice()
+            .sort((a, b) => String(b.dataConversa || "").localeCompare(String(a.dataConversa || "")))
+            .slice(0, 5);
+
+          return `
+            ${this.sectionHeader(
+              "Dashboard",
+              "Visao geral da operacao de marketing no navegador",
+              `<button class="btn btn-secondary" type="button" onclick="App.refreshFromServer(true)">Atualizar</button>`
+            )}
+
+            <div class="stats-grid">
+              ${this.statCard("Total de atletas", totalAtletas)}
+              ${this.statCard("Atletas ativos", atletasAtivos)}
+              ${this.statCard("Total de posts", totalPosts)}
+              ${this.statCard("Tarefas pendentes", tarefasPendentes)}
+              ${this.statCard("Tarefas atrasadas", tarefasAtrasadas)}
+              ${this.statCard("Custo com produtos", this.formatCurrency(custoTotalProdutos))}
+            </div>
+
+            <div class="columns-3">
+              <div class="card">
+                <div class="panel-head"><strong>Proximas tarefas</strong><button class="action-link" type="button" onclick="App.setView('tarefas')">Ver tudo</button></div>
+                <div class="panel-body">
+                  ${proximasTarefas.length ? `<div class="list">${proximasTarefas.map((task) => `
+                    <div class="list-item">
+                      <strong>${this.escape(task.tarefa)}</strong>
+                      <div class="meta">${this.athleteProfileTrigger(task.atletaId, this.athleteNameById(task.atletaId))} • ${this.formatDate(task.prazo)}</div>
+                      <div style="margin-top:8px;">${this.statusControl("task", task.id, this.computedTaskStatus(task))}</div>
+                    </div>
+                  `).join("")}</div>` : `<div class="empty">Nenhuma tarefa cadastrada.</div>`}
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="panel-head"><strong>Ultimos posts</strong><button class="action-link" type="button" onclick="App.setView('posts')">Ver tudo</button></div>
+                <div class="panel-body">
+                  ${ultimosPosts.length ? `<div class="list">${ultimosPosts.map((post) => `
+                    <div class="list-item">
+                      <strong>${this.athleteProfileTrigger(post.atletaId, this.athleteNameById(post.atletaId))}</strong>
+                      <div class="meta">${this.escape(post.plataforma)} • ${this.escape(post.tipo)} • ${this.formatDate(post.dataPublicacao)}</div>
+                      <div class="meta" style="margin-top:6px;">${this.formatNumber(post.views)} views</div>
+                    </div>
+                  `).join("")}</div>` : `<div class="empty">Nenhum post cadastrado.</div>`}
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="panel-head"><strong>Ultimas conversas</strong><button class="action-link" type="button" onclick="App.setView('conversas')">Ver tudo</button></div>
+                <div class="panel-body">
+                  ${ultimasConversas.length ? `<div class="list">${ultimasConversas.map((item) => `
+                    <div class="list-item">
+                      <strong>${this.athleteProfileTrigger(item.atletaId, this.athleteNameById(item.atletaId))}</strong>
+                      <div class="meta">${this.escape(item.canal)} • ${this.formatDate(item.dataConversa)}</div>
+                      <div class="meta" style="margin-top:6px;">${this.escape(item.resumoConversa)}</div>
+                    </div>
+                  `).join("")}</div>` : `<div class="empty">Nenhuma conversa registrada.</div>`}
+                </div>
+              </div>
+            </div>
+          `;
+        },
+
+        statCard(label, value) {
+          return `
+            <div class="card stat-card">
+              <div class="stat-value">${this.escape(value)}</div>
+              <div class="stat-label">${label}</div>
+            </div>
+          `;
+        },
+
+        renderAthletes() {
+          const filters = this.state.filters.atletas;
+          const rows = this.db.athletes
+            .filter((item) => !filters.search || item.nome.toLowerCase().indexOf(filters.search.toLowerCase()) !== -1)
+            .filter((item) => !filters.status || item.status === filters.status)
+            .filter((item) => !filters.modalidade || item.modalidade === filters.modalidade)
+            .sort((a, b) => a.nome.localeCompare(b.nome));
+
+          return `
+            ${this.sectionHeader(
+              "Atletas / Criadores",
+              `${rows.length} registro(s)`,
+              `<button class="btn btn-primary" type="button" onclick="App.openAthleteForm()">Novo atleta</button>`
+            )}
+
+            <div class="filters">
+              <div class="filter-field"><input class="input" placeholder="Buscar por nome..." value="${this.escape(filters.search)}" oninput="App.updateFilter('atletas','search', this.value)" /></div>
+              <div class="filter-field">
+                <select class="select" onchange="App.updateFilter('atletas','status', this.value)">
+                  <option value="">Todos os status</option>
+                  ${STATUS_ATLETA.map((status) => `<option value="${status}" ${filters.status === status ? "selected" : ""}>${status}</option>`).join("")}
+                </select>
+              </div>
+              <div class="filter-field">
+                <select class="select" onchange="App.updateFilter('atletas','modalidade', this.value)">
+                  <option value="">Todas as modalidades</option>
+                  ${MODALIDADES.map((item) => `<option value="${item}" ${filters.modalidade === item ? "selected" : ""}>${item}</option>`).join("")}
+                </select>
+              </div>
+            </div>
+
+            <div class="card">
+              ${rows.length ? `
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Nome</th>
+                        <th>Instagram</th>
+                        <th>Modalidade</th>
+                        <th>Seguidores</th>
+                        <th>Status</th>
+                        <th>Posts</th>
+                        <th>Cupom</th>
+                        <th>Acoes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${rows.map((item) => `
+                        <tr>
+                          <td><strong>${this.athleteProfileTrigger(item.id, item.nome)}</strong></td>
+                          <td>${this.escape(item.instagram || "-")}</td>
+                          <td>${this.escape(item.modalidade || "-")}</td>
+                          <td>${this.formatNumber(item.numeroSeguidores)}</td>
+                          <td>${this.statusControl("athlete", item.id, item.status)}</td>
+                          <td>${this.countPostsByAthlete(item.id)}</td>
+                          <td>${this.escape(item.cupomAtleta || "-")}</td>
+                          <td>
+                            <div class="actions">
+                              <button class="action-link" type="button" onclick="App.openAthleteForm(${item.id})">Editar</button>
+                              <button class="action-link danger" type="button" onclick="App.deleteAthlete(${item.id})">Excluir</button>
+                            </div>
+                          </td>
+                        </tr>
+                      `).join("")}
+                    </tbody>
+                  </table>
+                </div>
+              ` : `<div class="empty">Nenhum atleta encontrado.</div>`}
+            </div>
+          `;
+        },
+
+        renderPosts() {
+          const filters = this.state.filters.posts;
+          const rows = this.db.posts
+            .filter((item) => !filters.atletaId || String(item.atletaId) === String(filters.atletaId))
+            .filter((item) => !filters.plataforma || item.plataforma === filters.plataforma)
+            .filter((item) => !filters.tipo || item.tipo === filters.tipo)
+            .sort((a, b) => String(b.dataPublicacao || "").localeCompare(String(a.dataPublicacao || "")));
+
+          return `
+            ${this.sectionHeader(
+              "Posts / Conteudo publicado",
+              `${rows.length} registro(s)`,
+              `<button class="btn btn-primary" type="button" onclick="App.openPostForm()">Novo post</button>`
+            )}
+
+            <div class="filters">
+              <div class="filter-field">
+                <select class="select" onchange="App.updateFilter('posts','atletaId', this.value)">
+                  <option value="">Todos os atletas</option>
+                  ${this.db.athletes.map((athlete) => `<option value="${athlete.id}" ${String(filters.atletaId) === String(athlete.id) ? "selected" : ""}>${this.escape(athlete.nome)}</option>`).join("")}
+                </select>
+              </div>
+              <div class="filter-field">
+                <select class="select" onchange="App.updateFilter('posts','plataforma', this.value)">
+                  <option value="">Todas as plataformas</option>
+                  ${PLATAFORMAS.map((item) => `<option value="${item}" ${filters.plataforma === item ? "selected" : ""}>${item}</option>`).join("")}
+                </select>
+              </div>
+              <div class="filter-field">
+                <select class="select" onchange="App.updateFilter('posts','tipo', this.value)">
+                  <option value="">Todos os tipos</option>
+                  ${TIPOS_POST.map((item) => `<option value="${item}" ${filters.tipo === item ? "selected" : ""}>${item}</option>`).join("")}
+                </select>
+              </div>
+            </div>
+
+            <div class="card">
+              ${rows.length ? `
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Atleta</th>
+                        <th>Plataforma</th>
+                        <th>Tipo</th>
+                        <th>Data</th>
+                        <th>Campanha</th>
+                        <th>Views</th>
+                        <th>Likes</th>
+                        <th>Saves</th>
+                        <th>Acoes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${rows.map((item) => `
+                        <tr>
+                          <td><strong>${this.athleteProfileTrigger(item.atletaId, this.athleteNameById(item.atletaId))}</strong></td>
+                          <td>${this.escape(item.plataforma)}</td>
+                          <td>${this.escape(item.tipo)}</td>
+                          <td>${this.formatDate(item.dataPublicacao)}</td>
+                          <td>${this.escape(item.campanhaVinculada || "-")}</td>
+                          <td>${this.formatNumber(item.views)}</td>
+                          <td>${this.formatNumber(item.likes)}</td>
+                          <td>${this.formatNumber(item.saves)}</td>
+                          <td>
+                            <div class="actions">
+                              <button class="action-link" type="button" onclick="App.openPostForm(${item.id})">Editar</button>
+                              <button class="action-link danger" type="button" onclick="App.deleteEntity('posts', ${item.id})">Excluir</button>
+                            </div>
+                          </td>
+                        </tr>
+                      `).join("")}
+                    </tbody>
+                  </table>
+                </div>
+              ` : `<div class="empty">Nenhum post encontrado.</div>`}
+            </div>
+          `;
+        },
+
+        renderConversations() {
+          const filters = this.state.filters.conversas;
+          const rows = this.db.conversations
+            .filter((item) => !filters.atletaId || String(item.atletaId) === String(filters.atletaId))
+            .sort((a, b) => String(b.dataConversa || "").localeCompare(String(a.dataConversa || "")));
+
+          return `
+            ${this.sectionHeader(
+              "Conversas",
+              `${rows.length} registro(s)`,
+              `<button class="btn btn-primary" type="button" onclick="App.openConversationForm()">Nova conversa</button>`
+            )}
+
+            <div class="filters">
+              <div class="filter-field">
+                <select class="select" onchange="App.updateFilter('conversas','atletaId', this.value)">
+                  <option value="">Todos os atletas</option>
+                  ${this.db.athletes.map((athlete) => `<option value="${athlete.id}" ${String(filters.atletaId) === String(athlete.id) ? "selected" : ""}>${this.escape(athlete.nome)}</option>`).join("")}
+                </select>
+              </div>
+            </div>
+
+            <div class="list">
+              ${rows.length ? rows.map((item) => `
+                <div class="card" style="padding: 18px;">
+                  <div style="display:flex; justify-content:space-between; gap:16px; align-items:flex-start;">
+                    <div style="flex:1;">
+                      <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
+                        <strong>${this.athleteProfileTrigger(item.atletaId, this.athleteNameById(item.atletaId))}</strong>
+                        <span class="badge badge-prospect">${this.escape(item.canal)}</span>
+                        <span class="meta">${this.formatDate(item.dataConversa)}</span>
+                      </div>
+                      <div>${this.escape(item.resumoConversa)}</div>
+                      <div class="meta" style="margin-top:8px;">Proximo passo: ${this.escape(item.proximoPasso || "-")}</div>
+                    </div>
+                    <div class="actions">
+                      <button class="action-link" type="button" onclick="App.openConversationForm(${item.id})">Editar</button>
+                      <button class="action-link danger" type="button" onclick="App.deleteEntity('conversations', ${item.id})">Excluir</button>
+                    </div>
+                  </div>
+                </div>
+              `).join("") : `<div class="card empty">Nenhuma conversa encontrada.</div>`}
+            </div>
+          `;
+        },
+
+        renderProducts() {
+          const filters = this.state.filters.produtos;
+          const rows = this.db.products
+            .filter((item) => !filters.status || item.status === filters.status)
+            .sort((a, b) => String(b.dataEnvio || "").localeCompare(String(a.dataEnvio || "")));
+
+          const costByAthlete = this.db.athletes
+            .map((athlete) => ({
+              nome: athlete.nome,
+              total: this.totalProductCostByAthlete(athlete.id)
+            }))
+            .filter((item) => item.total > 0)
+            .sort((a, b) => b.total - a.total);
+
+          const total = rows.reduce((sum, item) => sum + Number(item.custoTotal || 0), 0);
+
+          return `
+            ${this.sectionHeader(
+              "Produtos enviados",
+              `${rows.length} envio(s) • Total ${this.formatCurrency(total)}`,
+              `<button class="btn btn-primary" type="button" onclick="App.openProductForm()">Novo envio</button>`
+            )}
+
+            <div class="filters">
+              <div class="filter-field">
+                <select class="select" onchange="App.updateFilter('produtos','status', this.value)">
+                  <option value="">Todos os status</option>
+                  ${STATUS_PRODUTO.map((item) => `<option value="${item}" ${filters.status === item ? "selected" : ""}>${item}</option>`).join("")}
+                </select>
+              </div>
+            </div>
+
+            ${costByAthlete.length ? `
+              <div class="summary-chips">
+                ${costByAthlete.map((item) => `
+                  <div class="chip">
+                    <strong>${this.escape(item.nome)}</strong>
+                    <span class="muted">${this.formatCurrency(item.total)}</span>
+                  </div>
+                `).join("")}
+              </div>
+            ` : ""}
+
+            <div class="card">
+              ${rows.length ? `
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Atleta</th>
+                        <th>Produto</th>
+                        <th>Tamanho</th>
+                        <th>Quantidade</th>
+                        <th>Valor un.</th>
+                        <th>Custo total</th>
+                        <th>Status</th>
+                        <th>Envio</th>
+                        <th>Acoes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${rows.map((item) => `
+                        <tr>
+                          <td><strong>${this.athleteProfileTrigger(item.atletaId, this.athleteNameById(item.atletaId))}</strong></td>
+                          <td>${this.escape(item.produto)}</td>
+                          <td>${this.escape(item.tamanho || "-")}</td>
+                          <td>${this.escape(item.quantidade)}</td>
+                          <td>${this.formatCurrency(item.valorProduto)}</td>
+                          <td>${this.formatCurrency(item.custoTotal)}</td>
+                          <td>${this.statusControl("product", item.id, item.status)}</td>
+                          <td>${this.formatDate(item.dataEnvio)}</td>
+                          <td>
+                            <div class="actions">
+                              <button class="action-link" type="button" onclick="App.openProductForm(${item.id})">Editar</button>
+                              <button class="action-link danger" type="button" onclick="App.deleteEntity('products', ${item.id})">Excluir</button>
+                            </div>
+                          </td>
+                        </tr>
+                      `).join("")}
+                    </tbody>
+                  </table>
+                </div>
+              ` : `<div class="empty">Nenhum produto encontrado.</div>`}
+            </div>
+          `;
+        },
+
+        renderTasks() {
+          const filters = this.state.filters.tarefas;
+          const rows = this.db.tasks
+            .filter((item) => !filters.status || this.computedTaskStatus(item) === filters.status)
+            .sort((a, b) => String(a.prazo || "").localeCompare(String(b.prazo || "")));
+
+          return `
+            ${this.sectionHeader(
+              "Tarefas / Prazos",
+              `${rows.length} tarefa(s)`,
+              `<button class="btn btn-primary" type="button" onclick="App.openTaskForm()">Nova tarefa</button>`
+            )}
+
+            <div class="filters">
+              <div class="filter-field">
+                <select class="select" onchange="App.updateFilter('tarefas','status', this.value)">
+                  <option value="">Todos os status</option>
+                  ${STATUS_TAREFA.map((item) => `<option value="${item}" ${filters.status === item ? "selected" : ""}>${item}</option>`).join("")}
+                </select>
+              </div>
+            </div>
+
+            <div class="list">
+              ${rows.length ? rows.map((item) => {
+                const status = this.computedTaskStatus(item);
+                return `
+                  <div class="task-card ${status === "atrasado" ? "overdue" : ""}">
+                    <div style="flex:1;">
+                      <strong>${this.escape(item.tarefa)}</strong>
+                      <div class="meta">${this.athleteProfileTrigger(item.atletaId, this.athleteNameById(item.atletaId))} • Prazo ${this.formatDate(item.prazo)}${item.campanha ? ` • ${this.escape(item.campanha)}` : ""}</div>
+                    </div>
+                    <div class="actions">
+                      ${this.statusControl("task", item.id, status)}
+                      <button class="action-link" type="button" onclick="App.openTaskForm(${item.id})">Editar</button>
+                      <button class="action-link danger" type="button" onclick="App.deleteEntity('tasks', ${item.id})">Excluir</button>
+                    </div>
+                  </div>
+                `;
+              }).join("") : `<div class="card empty">Nenhuma tarefa encontrada.</div>`}
+            </div>
+          `;
+        },
+
+        updateFilter(module, key, value) {
+          this.state.filters[module][key] = value;
+          this.render();
+        },
+
+        async deleteAthlete(id) {
+          const athlete = this.athleteById(id);
+          if (!athlete) return;
+          if (!confirm(`Excluir ${athlete.nome} e todos os registros vinculados?`)) return;
+
+          await this.deleteRecord("athletes", id);
+          await this.afterEntitySave();
+        },
+
+        async deleteEntity(collection, id, athleteId, tab) {
+          const names = {
+            posts: "post",
+            conversations: "conversa",
+            products: "produto",
+            tasks: "tarefa",
+            couponSales: "venda"
+          };
+          if (!confirm(`Excluir ${names[collection] || "registro"}?`)) return;
+          this.setReturnToProfile(athleteId, tab);
+          await this.deleteRecord(collection, id);
+
+          if (collection === "conversations") {
+            await this.deleteWhere("tasks", {
+              origemTipo: "conversa",
+              origemId: Number(id)
+            });
+          }
+
+          if (collection === "products") {
+            await this.deleteWhere("tasks", {
+              origemTipo: "produto",
+              origemId: Number(id)
+            });
+          }
+
+          await this.afterEntitySave();
+        },
+
+        optionList(items, currentValue, emptyLabel) {
+          return `
+            <option value="">${emptyLabel}</option>
+            ${items.map((item) => `<option value="${this.escape(item.value)}" ${String(currentValue) === String(item.value) ? "selected" : ""}>${this.escape(item.label)}</option>`).join("")}
+          `;
+        },
+
+        athleteOptions(selectedId) {
+          return this.db.athletes.slice()
+            .sort((a, b) => a.nome.localeCompare(b.nome))
+            .map((item) => `<option value="${item.id}" ${String(item.id) === String(selectedId || "") ? "selected" : ""}>${this.escape(item.nome)}</option>`)
+            .join("");
+        },
+
+        productItemRowHtml(item) {
+          const row = item || {};
+          return `
+            <div class="card" data-product-item style="padding: 16px;">
+              <div class="form-grid">
+                ${this.field("Produto *", `<input class="input" name="produto" required value="${this.escape(row.produto || "")}" />`)}
+                ${this.field("Tamanho", `<input class="input" name="tamanho" value="${this.escape(row.tamanho || "")}" />`)}
+                ${this.field("Quantidade", `<input class="input" type="number" name="quantidade" min="1" value="${this.escape(row.quantidade || 1)}" />`)}
+                ${this.field("Valor unitario", `<input class="input" type="number" step="0.01" name="valorProduto" value="${this.escape(row.valorProduto || "")}" />`)}
+              </div>
+              <div class="actions" style="justify-content:flex-end; margin-top: 12px;">
+                <button class="btn btn-secondary" type="button" onclick="App.removeProductItemRow(this)">Remover produto</button>
+              </div>
+            </div>
+          `;
+        },
+
+        addProductItemRow() {
+          const list = document.getElementById("productItemsList");
+          if (!list) return;
+          list.insertAdjacentHTML("beforeend", this.productItemRowHtml());
+        },
+
+        removeProductItemRow(button) {
+          const list = document.getElementById("productItemsList");
+          if (!list) return;
+
+          if (list.querySelectorAll("[data-product-item]").length <= 1) {
+            alert("Mantenha pelo menos um produto no envio.");
+            return;
+          }
+
+          const row = button && button.parentNode ? button.parentNode.parentNode : null;
+          if (row) {
+            row.remove();
+          }
+        },
+
+        openAthleteForm(id) {
+          const athlete = id ? this.athleteById(id) : null;
+          const athleteData = athlete || {};
+          this.openModal(
+            athlete ? "Editar atleta" : "Novo atleta",
+            `
+              <form onsubmit="App.submitAthlete(event, ${id || "null"})">
+                <div class="form-grid">
+                  ${this.field("Nome *", `<input class="input" name="nome" required value="${this.escape(athleteData.nome || "")}" />`, true)}
+                  ${this.field("Instagram", `<input class="input" name="instagram" value="${this.escape(athleteData.instagram || "")}" />`)}
+                  ${this.field("TikTok", `<input class="input" name="tiktok" value="${this.escape(athleteData.tiktok || "")}" />`)}
+                  ${this.field("Email", `<input class="input" type="email" name="email" value="${this.escape(athleteData.email || "")}" />`)}
+                  ${this.field("WhatsApp", `<input class="input" name="whatsapp" value="${this.escape(athleteData.whatsapp || "")}" />`)}
+                  ${this.field("Cidade", `<input class="input" name="cidade" value="${this.escape(athleteData.cidade || "")}" />`)}
+                  ${this.field("Modalidade", `
+                    <select class="select" name="modalidade">
+                      <option value="">Selecione</option>
+                      ${MODALIDADES.map((item) => `<option value="${item}" ${athleteData.modalidade === item ? "selected" : ""}>${item}</option>`).join("")}
+                    </select>
+                  `)}
+                  ${this.field("Numero de seguidores", `<input class="input" type="number" name="numeroSeguidores" value="${this.escape(athleteData.numeroSeguidores || "")}" />`)}
+                  ${this.field("Data inicio parceria", `<input class="input" type="date" name="dataInicioParceria" value="${this.escape(athleteData.dataInicioParceria || "")}" />`)}
+                  ${this.field("Status", `
+                    <select class="select" name="status">
+                      ${STATUS_ATLETA.map((item) => `<option value="${item}" ${String(athleteData.status || "prospect") === item ? "selected" : ""}>${item}</option>`).join("")}
+                    </select>
+                  `)}
+                  ${this.field("Link bio", `<input class="input" name="linkBio" value="${this.escape(athleteData.linkBio || "")}" />`)}
+                  ${this.field("Linktree", `<input class="input" name="linktree" value="${this.escape(athleteData.linktree || "")}" />`)}
+                  ${this.field("Agencia responsavel", `<input class="input" name="agenciaResponsavel" value="${this.escape(athleteData.agenciaResponsavel || "")}" />`, true)}
+                  ${this.field("Cupom atleta", `<input class="input" name="cupomAtleta" value="${this.escape(athleteData.cupomAtleta || "")}" />`)}
+                  ${this.field("Comissao percentual", `<input class="input" type="number" step="0.1" name="comissaoPercentual" value="${this.escape(athleteData.comissaoPercentual || "")}" />`)}
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-secondary" type="button" onclick="App.closeModal()">Cancelar</button>
+                  <button class="btn btn-primary" type="submit">${athlete ? "Salvar alteracoes" : "Criar atleta"}</button>
+                </div>
+              </form>
+            `
+          );
+        },
+
+        async submitAthlete(event, id) {
+          event.preventDefault();
+          const fd = new FormData(event.target);
+          const existing = id ? this.athleteById(id) : null;
+          const record = {
+            nome: String(fd.get("nome") || "").trim(),
+            instagram: String(fd.get("instagram") || "").trim(),
+            tiktok: String(fd.get("tiktok") || "").trim(),
+            email: String(fd.get("email") || "").trim(),
+            whatsapp: String(fd.get("whatsapp") || "").trim(),
+            cidade: String(fd.get("cidade") || "").trim(),
+            modalidade: String(fd.get("modalidade") || "").trim(),
+            numeroSeguidores: Number(fd.get("numeroSeguidores") || 0) || 0,
+            dataInicioParceria: this.emptyToNull(fd.get("dataInicioParceria")),
+            status: String(fd.get("status") || "prospect"),
+            linkBio: String(fd.get("linkBio") || "").trim(),
+            linktree: String(fd.get("linktree") || "").trim(),
+            agenciaResponsavel: String(fd.get("agenciaResponsavel") || "").trim(),
+            cupomAtleta: String(fd.get("cupomAtleta") || "").trim(),
+            comissaoPercentual: this.numberOrNull(fd.get("comissaoPercentual")),
+            createdAt: existing ? existing.createdAt : this.nowIso(),
+            updatedAt: this.nowIso()
+          };
+
+          await this.saveRecord("athletes", record, existing ? existing.id : null);
+          await this.afterEntitySave();
+        },
+
+        openPostForm(id, athleteId, sourceTab) {
+          if (!this.db.athletes.length) return alert("Cadastre um atleta antes de criar posts.");
+          this.setReturnToProfile(athleteId, sourceTab);
+          const post = id ? this.db.posts.find((item) => Number(item.id) === Number(id)) : null;
+          const postData = post || {};
+          const selectedAthleteId = postData.atletaId || athleteId || "";
+          this.openModal(
+            post ? "Editar post" : "Novo post",
+            `
+              <form onsubmit="App.submitPost(event, ${id || "null"})">
+                <div class="form-grid">
+                  ${this.field("Atleta *", `<select class="select" name="atletaId" required><option value="">Selecione</option>${this.athleteOptions(selectedAthleteId)}</select>`, true)}
+                  ${this.field("Plataforma", `<select class="select" name="plataforma">${PLATAFORMAS.map((item) => `<option value="${item}" ${String(postData.plataforma || "instagram") === item ? "selected" : ""}>${item}</option>`).join("")}</select>`)}
+                  ${this.field("Tipo", `<select class="select" name="tipo">${TIPOS_POST.map((item) => `<option value="${item}" ${String(postData.tipo || "post") === item ? "selected" : ""}>${item}</option>`).join("")}</select>`)}
+                  ${this.field("Data publicacao", `<input class="input" type="date" name="dataPublicacao" value="${this.escape(postData.dataPublicacao || "")}" />`)}
+                  ${this.field("Campanha vinculada", `<input class="input" name="campanhaVinculada" value="${this.escape(postData.campanhaVinculada || "")}" />`)}
+                  ${this.field("Link do post", `<input class="input" name="linkPost" value="${this.escape(postData.linkPost || "")}" />`, true)}
+                  ${this.field("Views", `<input class="input" type="number" name="views" value="${this.escape(postData.views || "")}" />`)}
+                  ${this.field("Likes", `<input class="input" type="number" name="likes" value="${this.escape(postData.likes || "")}" />`)}
+                  ${this.field("Comentarios", `<input class="input" type="number" name="comentarios" value="${this.escape(postData.comentarios || "")}" />`)}
+                  ${this.field("Saves", `<input class="input" type="number" name="saves" value="${this.escape(postData.saves || "")}" />`)}
+                  ${this.field("Compartilhamentos", `<input class="input" type="number" name="compartilhamentos" value="${this.escape(postData.compartilhamentos || "")}" />`)}
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-secondary" type="button" onclick="App.cancelModalFlow()">Cancelar</button>
+                  <button class="btn btn-primary" type="submit">Salvar</button>
+                </div>
+              </form>
+            `
+          );
+        },
+
+        async submitPost(event, id) {
+          event.preventDefault();
+          const fd = new FormData(event.target);
+          const existing = id ? this.db.posts.find((item) => Number(item.id) === Number(id)) : null;
+          const record = {
+            atletaId: Number(fd.get("atletaId")),
+            plataforma: String(fd.get("plataforma") || "instagram"),
+            linkPost: String(fd.get("linkPost") || "").trim(),
+            tipo: String(fd.get("tipo") || "post"),
+            dataPublicacao: this.emptyToNull(fd.get("dataPublicacao")),
+            campanhaVinculada: String(fd.get("campanhaVinculada") || "").trim(),
+            views: Number(fd.get("views") || 0) || 0,
+            likes: Number(fd.get("likes") || 0) || 0,
+            comentarios: Number(fd.get("comentarios") || 0) || 0,
+            saves: Number(fd.get("saves") || 0) || 0,
+            compartilhamentos: Number(fd.get("compartilhamentos") || 0) || 0,
+            createdAt: existing ? existing.createdAt : this.nowIso(),
+            updatedAt: this.nowIso()
+          };
+
+          await this.saveRecord("posts", record, existing ? existing.id : null);
+          await this.afterEntitySave();
+        },
+
+        openConversationForm(id, athleteId, sourceTab) {
+          if (!this.db.athletes.length) return alert("Cadastre um atleta antes de registrar conversas.");
+          this.setReturnToProfile(athleteId, sourceTab);
+          const record = id ? this.db.conversations.find((item) => Number(item.id) === Number(id)) : null;
+          const recordData = record || {};
+          const selectedAthleteId = recordData.atletaId || athleteId || "";
+          this.openModal(
+            record ? "Editar conversa" : "Nova conversa",
+            `
+              <form onsubmit="App.submitConversation(event, ${id || "null"})">
+                <div class="form-grid">
+                  ${this.field("Atleta *", `<select class="select" name="atletaId" required><option value="">Selecione</option>${this.athleteOptions(selectedAthleteId)}</select>`, true)}
+                  ${this.field("Data da conversa", `<input class="input" type="date" name="dataConversa" value="${this.escape(recordData.dataConversa || this.today())}" required />`)}
+                  ${this.field("Canal", `<select class="select" name="canal">${CANAIS.map((item) => `<option value="${item}" ${String(recordData.canal || "whatsapp") === item ? "selected" : ""}>${item}</option>`).join("")}</select>`)}
+                  ${this.field("Resumo da conversa *", `<textarea class="textarea" name="resumoConversa" required>${this.escape(recordData.resumoConversa || "")}</textarea>`, true)}
+                  ${this.field("Proximo passo", `<input class="input" name="proximoPasso" value="${this.escape(recordData.proximoPasso || "")}" />`, true)}
+                </div>
+                <div class="meta" style="margin-top: 12px;">Se preencher "Proximo passo" em uma nova conversa, uma tarefa sera criada automaticamente.</div>
+                <div class="form-actions">
+                  <button class="btn btn-secondary" type="button" onclick="App.cancelModalFlow()">Cancelar</button>
+                  <button class="btn btn-primary" type="submit">Salvar</button>
+                </div>
+              </form>
+            `
+          );
+        },
+
+        async submitConversation(event, id) {
+          event.preventDefault();
+          const fd = new FormData(event.target);
+          const existing = id ? this.db.conversations.find((item) => Number(item.id) === Number(id)) : null;
+          const record = {
+            atletaId: Number(fd.get("atletaId")),
+            dataConversa: this.emptyToNull(fd.get("dataConversa")) || this.today(),
+            canal: String(fd.get("canal") || "whatsapp"),
+            resumoConversa: String(fd.get("resumoConversa") || "").trim(),
+            proximoPasso: String(fd.get("proximoPasso") || "").trim(),
+            createdAt: existing ? existing.createdAt : this.nowIso(),
+            updatedAt: this.nowIso()
+          };
+
+          const savedRecord = await this.saveRecord("conversations", record, existing ? existing.id : null);
+
+          if (!existing && savedRecord && record.proximoPasso) {
+            await this.createAutoTask({
+              atletaId: savedRecord.atletaId,
+              tarefa: savedRecord.proximoPasso,
+              campanha: "",
+              prazo: this.addDays(savedRecord.dataConversa || this.today(), 3),
+              origemTipo: "conversa",
+              origemId: savedRecord.id,
+              origemAcao: "proximo_passo"
+            });
+          }
+
+          await this.afterEntitySave();
+        },
+
+        openProductForm(id, athleteId, sourceTab) {
+          if (!this.db.athletes.length) return alert("Cadastre um atleta antes de registrar envios.");
+          this.setReturnToProfile(athleteId, sourceTab);
+          const record = id ? this.db.products.find((item) => Number(item.id) === Number(id)) : null;
+          const recordData = record || {};
+          const selectedAthleteId = recordData.atletaId || athleteId || "";
+
+          if (!record) {
+            this.openModal(
+              "Novo envio",
+              `
+                <form onsubmit="App.submitProduct(event, null)">
+                  <div class="form-grid">
+                    ${this.field("Atleta *", `<select class="select" name="atletaId" required><option value="">Selecione</option>${this.athleteOptions(selectedAthleteId)}</select>`, true)}
+                    ${this.field("Data de envio", `<input class="input" type="date" name="dataEnvio" value="${this.escape(recordData.dataEnvio || "")}" />`)}
+                    ${this.field("Status", `<select class="select" name="status">${STATUS_PRODUTO.map((item) => `<option value="${item}" ${String(recordData.status || "enviado") === item ? "selected" : ""}>${item}</option>`).join("")}</select>`)}
+                  </div>
+                  <div style="margin: 18px 0 10px; font-weight: 700;">Produtos deste envio</div>
+                  <div id="productItemsList" class="list">
+                    ${this.productItemRowHtml()}
+                  </div>
+                  <div class="actions" style="margin-top: 14px;">
+                    <button class="btn btn-secondary" type="button" onclick="App.addProductItemRow()">Adicionar produto</button>
+                  </div>
+                  <div class="meta" style="margin-top: 12px;">Voce pode cadastrar varios produtos no mesmo envio. O sistema cria um registro separado para cada item e gera as tarefas automaticas.</div>
+                  <div class="form-actions">
+                    <button class="btn btn-secondary" type="button" onclick="App.cancelModalFlow()">Cancelar</button>
+                    <button class="btn btn-primary" type="submit">Salvar</button>
+                  </div>
+                </form>
+              `
+            );
+            return;
+          }
+
+          this.openModal(
+            "Editar envio",
+            `
+              <form onsubmit="App.submitProduct(event, ${id || "null"})">
+                <div class="form-grid">
+                  ${this.field("Atleta *", `<select class="select" name="atletaId" required><option value="">Selecione</option>${this.athleteOptions(selectedAthleteId)}</select>`, true)}
+                  ${this.field("Produto *", `<input class="input" name="produto" required value="${this.escape(recordData.produto || "")}" />`)}
+                  ${this.field("Tamanho", `<input class="input" name="tamanho" value="${this.escape(recordData.tamanho || "")}" />`)}
+                  ${this.field("Quantidade", `<input class="input" type="number" name="quantidade" min="1" value="${this.escape(recordData.quantidade || 1)}" />`)}
+                  ${this.field("Data de envio", `<input class="input" type="date" name="dataEnvio" value="${this.escape(recordData.dataEnvio || "")}" />`)}
+                  ${this.field("Valor unitario", `<input class="input" type="number" step="0.01" name="valorProduto" value="${this.escape(recordData.valorProduto || "")}" />`)}
+                  ${this.field("Status", `<select class="select" name="status">${STATUS_PRODUTO.map((item) => `<option value="${item}" ${String(recordData.status || "enviado") === item ? "selected" : ""}>${item}</option>`).join("")}</select>`)}
+                </div>
+                <div class="meta" style="margin-top: 12px;">Ao salvar um novo envio, o sistema cria tarefa de acompanhamento. Se o status for entregue, cria tambem uma tarefa para cobrar postagem.</div>
+                <div class="form-actions">
+                  <button class="btn btn-secondary" type="button" onclick="App.cancelModalFlow()">Cancelar</button>
+                  <button class="btn btn-primary" type="submit">Salvar</button>
+                </div>
+              </form>
+            `
+          );
+        },
+
+        async submitProduct(event, id) {
+          event.preventDefault();
+          const fd = new FormData(event.target);
+          const existing = id ? this.db.products.find((item) => Number(item.id) === Number(id)) : null;
+
+          if (!existing) {
+            const atletaId = Number(fd.get("atletaId"));
+            const dataEnvio = this.emptyToNull(fd.get("dataEnvio"));
+            const status = String(fd.get("status") || "enviado");
+            const items = event.target.querySelectorAll("[data-product-item]");
+
+            if (!atletaId) {
+              alert("Selecione um atleta antes de salvar o envio.");
+              return;
+            }
+
+            for (let index = 0; index < items.length; index += 1) {
+              const row = items[index];
+              const produto = String((row.querySelector('[name="produto"]') || {}).value || "").trim();
+              const tamanho = String((row.querySelector('[name="tamanho"]') || {}).value || "").trim();
+              const quantidade = Number((row.querySelector('[name="quantidade"]') || {}).value || 1) || 1;
+              const valorProduto = Number((row.querySelector('[name="valorProduto"]') || {}).value || 0) || 0;
+
+              if (!produto) {
+                alert("Preencha o nome de todos os produtos antes de salvar.");
+                return;
+              }
+
+              const record = {
+                atletaId,
+                produto,
+                tamanho,
+                quantidade,
+                dataEnvio,
+                valorProduto,
+                custoTotal: quantidade * valorProduto,
+                status,
+                createdAt: this.nowIso(),
+                updatedAt: this.nowIso()
+              };
+
+              const savedRecord = await this.saveRecord("products", record, null);
+              await this.maybeCreateProductTasks(savedRecord || record, "", true);
+            }
+
+            await this.afterEntitySave();
+            return;
+          }
+
+          const previousStatus = existing && existing.status ? existing.status : "";
+          const quantidade = Number(fd.get("quantidade") || 1) || 1;
+          const valorProduto = Number(fd.get("valorProduto") || 0) || 0;
+          const record = {
+            atletaId: Number(fd.get("atletaId")),
+            produto: String(fd.get("produto") || "").trim(),
+            tamanho: String(fd.get("tamanho") || "").trim(),
+            quantidade,
+            dataEnvio: this.emptyToNull(fd.get("dataEnvio")),
+            valorProduto,
+            custoTotal: quantidade * valorProduto,
+            status: String(fd.get("status") || "enviado"),
+            createdAt: existing ? existing.createdAt : this.nowIso(),
+            updatedAt: this.nowIso()
+          };
+
+          const savedRecord = await this.saveRecord("products", record, existing ? existing.id : null);
+          await this.maybeCreateProductTasks(savedRecord || record, previousStatus, !existing);
+          await this.afterEntitySave();
+        },
+
+        openTaskForm(id, athleteId, sourceTab) {
+          if (!this.db.athletes.length) return alert("Cadastre um atleta antes de registrar tarefas.");
+          this.setReturnToProfile(athleteId, sourceTab);
+          const record = id ? this.db.tasks.find((item) => Number(item.id) === Number(id)) : null;
+          const recordData = record || {};
+          const selectedAthleteId = recordData.atletaId || athleteId || "";
+          this.openModal(
+            record ? "Editar tarefa" : "Nova tarefa",
+            `
+              <form onsubmit="App.submitTask(event, ${id || "null"})">
+                <div class="form-grid">
+                  ${this.field("Atleta *", `<select class="select" name="atletaId" required><option value="">Selecione</option>${this.athleteOptions(selectedAthleteId)}</select>`, true)}
+                  ${this.field("Tarefa *", `<input class="input" name="tarefa" required value="${this.escape(recordData.tarefa || "")}" />`, true)}
+                  ${this.field("Campanha", `<input class="input" name="campanha" value="${this.escape(recordData.campanha || "")}" />`)}
+                  ${this.field("Prazo *", `<input class="input" type="date" name="prazo" required value="${this.escape(recordData.prazo || this.today())}" />`)}
+                  ${this.field("Status", `<select class="select" name="status">${STATUS_TAREFA.map((item) => `<option value="${item}" ${String(recordData.status || "pendente") === item ? "selected" : ""}>${item}</option>`).join("")}</select>`)}
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-secondary" type="button" onclick="App.cancelModalFlow()">Cancelar</button>
+                  <button class="btn btn-primary" type="submit">Salvar</button>
+                </div>
+              </form>
+            `
+          );
+        },
+
+        async submitTask(event, id) {
+          event.preventDefault();
+          const fd = new FormData(event.target);
+          const existing = id ? this.db.tasks.find((item) => Number(item.id) === Number(id)) : null;
+          const record = {
+            atletaId: Number(fd.get("atletaId")),
+            tarefa: String(fd.get("tarefa") || "").trim(),
+            campanha: String(fd.get("campanha") || "").trim(),
+            prazo: this.emptyToNull(fd.get("prazo")) || this.today(),
+            status: String(fd.get("status") || "pendente"),
+            createdAt: existing ? existing.createdAt : this.nowIso(),
+            updatedAt: this.nowIso()
+          };
+
+          await this.saveRecord("tasks", record, existing ? existing.id : null);
+          await this.afterEntitySave();
+        },
+
+        openCouponSaleForm(id, athleteId, sourceTab) {
+          if (!this.db.athletes.length) return alert("Cadastre um atleta antes de registrar vendas.");
+          this.setReturnToProfile(athleteId, sourceTab);
+          const record = id ? this.db.couponSales.find((item) => Number(item.id) === Number(id)) : null;
+          const recordData = record || {};
+          const selectedAthleteId = recordData.atletaId || athleteId || "";
+          this.openModal(
+            record ? "Editar venda por cupom" : "Nova venda por cupom",
+            `
+              <form onsubmit="App.submitCouponSale(event, ${id || "null"})">
+                <div class="form-grid">
+                  ${this.field("Atleta *", `<select class="select" name="atletaId" required><option value="">Selecione</option>${this.athleteOptions(selectedAthleteId)}</select>`, true)}
+                  ${this.field("Data da venda *", `<input class="input" type="date" name="dataVenda" required value="${this.escape(recordData.dataVenda || this.today())}" />`)}
+                  ${this.field("Valor total *", `<input class="input" type="number" step="0.01" name="valorTotal" required value="${this.escape(recordData.valorTotal || "")}" />`)}
+                  ${this.field("Quantidade de pedidos", `<input class="input" type="number" min="0" name="quantidadePedidos" value="${this.escape(recordData.quantidadePedidos || "")}" />`)}
+                  ${this.field("Observacao", `<textarea class="textarea" name="observacao">${this.escape(recordData.observacao || "")}</textarea>`, true)}
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-secondary" type="button" onclick="App.cancelModalFlow()">Cancelar</button>
+                  <button class="btn btn-primary" type="submit">Salvar</button>
+                </div>
+              </form>
+            `
+          );
+        },
+
+        async submitCouponSale(event, id) {
+          event.preventDefault();
+          const fd = new FormData(event.target);
+          const existing = id ? this.db.couponSales.find((item) => Number(item.id) === Number(id)) : null;
+          const record = {
+            atletaId: Number(fd.get("atletaId")),
+            dataVenda: this.emptyToNull(fd.get("dataVenda")) || this.today(),
+            valorTotal: Number(fd.get("valorTotal") || 0) || 0,
+            quantidadePedidos: Number(fd.get("quantidadePedidos") || 0) || 0,
+            observacao: String(fd.get("observacao") || "").trim(),
+            createdAt: existing ? existing.createdAt : this.nowIso(),
+            updatedAt: this.nowIso()
+          };
+
+          await this.saveRecord("couponSales", record, existing ? existing.id : null);
+          await this.afterEntitySave();
+        },
+
+        field(label, inputHtml, full) {
+          return `
+            <div class="field ${full ? "form-full" : ""}">
+              <label>${label}</label>
+              ${inputHtml}
+            </div>
+          `;
+        },
+
+        openAthleteProfile(id, tab) {
+          const athlete = this.athleteById(id);
+          if (!athlete) return;
+          this.state.profileTab = tab || "dados";
+
+          const posts = this.db.posts.filter((item) => Number(item.atletaId) === Number(id)).sort((a, b) => String(b.dataPublicacao || "").localeCompare(String(a.dataPublicacao || "")));
+          const conversations = this.db.conversations.filter((item) => Number(item.atletaId) === Number(id)).sort((a, b) => String(b.dataConversa || "").localeCompare(String(a.dataConversa || "")));
+          const products = this.db.products.filter((item) => Number(item.atletaId) === Number(id)).sort((a, b) => String(b.dataEnvio || "").localeCompare(String(a.dataEnvio || "")));
+          const couponSales = this.couponSalesByAthlete(id);
+          const tasks = this.db.tasks.filter((item) => Number(item.atletaId) === Number(id)).sort((a, b) => String(a.prazo || "").localeCompare(String(b.prazo || "")));
+
+          const metrics = `
+            <div class="profile-grid">
+              ${this.profileMetric("Seguidores", this.formatNumber(athlete.numeroSeguidores))}
+              ${this.profileMetric("Posts", posts.length)}
+              ${this.profileMetric("Conversas", conversations.length)}
+              ${this.profileMetric("Produtos", products.length)}
+              ${this.profileMetric("Vendas cupom", this.formatCurrency(this.totalCouponSalesByAthlete(id)))}
+              ${this.profileMetric("Custo total", this.formatCurrency(this.totalProductCostByAthlete(id)))}
+            </div>
+          `;
+
+          const tabs = ["dados", "posts", "conversas", "produtos", "tarefas", "vendas"]
+            .map((item) => `<button type="button" class="tab ${this.state.profileTab === item ? "active" : ""}" onclick="App.openAthleteProfile(${id}, '${item}')">${item}</button>`)
+            .join("");
+
+          let profileActions = "";
+          let body = "";
+
+          if (this.state.profileTab === "dados") {
+            body = `
+              <div class="card panel-body">
+                <div class="details-grid">
+                  ${this.detailRow("Instagram", athlete.instagram)}
+                  ${this.detailRow("TikTok", athlete.tiktok)}
+                  ${this.detailRow("Email", athlete.email)}
+                  ${this.detailRow("WhatsApp", athlete.whatsapp)}
+                  ${this.detailRow("Cidade", athlete.cidade)}
+                  ${this.detailRow("Modalidade", athlete.modalidade)}
+                  ${this.detailRow("Inicio parceria", this.formatDate(athlete.dataInicioParceria))}
+                  ${this.detailRow("Status", this.statusControl("athlete", athlete.id, athlete.status, athlete.id, "dados"))}
+                  ${this.detailRow("Link bio", athlete.linkBio)}
+                  ${this.detailRow("Linktree", athlete.linktree)}
+                  ${this.detailRow("Agencia", athlete.agenciaResponsavel)}
+                  ${this.detailRow("Cupom", athlete.cupomAtleta)}
+                  ${this.detailRow("Comissao", athlete.comissaoPercentual ? `${athlete.comissaoPercentual}%` : "-")}
+                  ${this.detailRow("Total vendido cupom", this.formatCurrency(this.totalCouponSalesByAthlete(id)))}
+                  ${this.detailRow("Comissao estimada", this.formatCurrency(this.estimatedCommissionByAthlete(id)))}
+                </div>
+              </div>
+            `;
+          }
+
+          if (this.state.profileTab === "posts") {
+            profileActions = `
+              <div class="actions" style="margin-bottom: 14px;">
+                <button class="btn btn-primary" type="button" onclick="App.openPostForm(null, ${id}, 'posts')">Novo post</button>
+              </div>
+            `;
+            body = posts.length ? `
+              <div class="card">
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Plataforma</th><th>Tipo</th><th>Data</th><th>Campanha</th><th>Views</th><th>Likes</th></tr></thead>
+                    <tbody>
+                      ${posts.map((item) => `
+                        <tr>
+                          <td>${this.escape(item.plataforma)}</td>
+                          <td>${this.escape(item.tipo)}</td>
+                          <td>${this.formatDate(item.dataPublicacao)}</td>
+                          <td>${this.escape(item.campanhaVinculada || "-")}</td>
+                          <td>${this.formatNumber(item.views)}</td>
+                          <td>${this.formatNumber(item.likes)}</td>
+                        </tr>
+                      `).join("")}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ` : `<div class="card empty">Nenhum post cadastrado.</div>`;
+          }
+
+          if (this.state.profileTab === "conversas") {
+            profileActions = `
+              <div class="actions" style="margin-bottom: 14px;">
+                <button class="btn btn-primary" type="button" onclick="App.openConversationForm(null, ${id}, 'conversas')">Nova conversa</button>
+              </div>
+            `;
+            body = conversations.length ? `
+              <div class="list">
+                ${conversations.map((item) => `
+                  <div class="card" style="padding:16px;">
+                    <strong>${this.escape(item.canal)}</strong>
+                    <div class="meta">${this.formatDate(item.dataConversa)}</div>
+                    <div style="margin-top:8px;">${this.escape(item.resumoConversa)}</div>
+                    <div class="meta" style="margin-top:8px;">Proximo passo: ${this.escape(item.proximoPasso || "-")}</div>
+                  </div>
+                `).join("")}
+              </div>
+            ` : `<div class="card empty">Nenhuma conversa registrada.</div>`;
+          }
+
+          if (this.state.profileTab === "produtos") {
+            profileActions = `
+              <div class="actions" style="margin-bottom: 14px;">
+                <button class="btn btn-primary" type="button" onclick="App.openProductForm(null, ${id}, 'produtos')">Novo envio</button>
+              </div>
+            `;
+            body = products.length ? `
+              <div class="card">
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Produto</th><th>Tamanho</th><th>Qtd</th><th>Custo</th><th>Status</th><th>Envio</th></tr></thead>
+                    <tbody>
+                      ${products.map((item) => `
+                        <tr>
+                          <td>${this.escape(item.produto)}</td>
+                          <td>${this.escape(item.tamanho || "-")}</td>
+                          <td>${this.escape(item.quantidade)}</td>
+                          <td>${this.formatCurrency(item.custoTotal)}</td>
+                          <td>${this.statusControl("product", item.id, item.status, id, "produtos")}</td>
+                          <td>${this.formatDate(item.dataEnvio)}</td>
+                        </tr>
+                      `).join("")}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ` : `<div class="card empty">Nenhum produto enviado.</div>`;
+          }
+
+          if (this.state.profileTab === "tarefas") {
+            profileActions = `
+              <div class="actions" style="margin-bottom: 14px;">
+                <button class="btn btn-primary" type="button" onclick="App.openTaskForm(null, ${id}, 'tarefas')">Nova tarefa</button>
+              </div>
+            `;
+            body = tasks.length ? `
+              <div class="list">
+                ${tasks.map((item) => `
+                  <div class="task-card ${this.computedTaskStatus(item) === "atrasado" ? "overdue" : ""}">
+                    <div style="flex:1;">
+                      <strong>${this.escape(item.tarefa)}</strong>
+                      <div class="meta">Prazo ${this.formatDate(item.prazo)}${item.campanha ? ` • ${this.escape(item.campanha)}` : ""}</div>
+                    </div>
+                    ${this.statusControl("task", item.id, this.computedTaskStatus(item), id, "tarefas")}
+                  </div>
+                `).join("")}
+              </div>
+            ` : `<div class="card empty">Nenhuma tarefa cadastrada.</div>`;
+          }
+
+          if (this.state.profileTab === "vendas") {
+            profileActions = `
+              <div class="actions" style="margin-bottom: 14px;">
+                <button class="btn btn-primary" type="button" onclick="App.openCouponSaleForm(null, ${id}, 'vendas')">Nova venda</button>
+              </div>
+              <div class="summary-chips">
+                <div class="chip">
+                  <strong>Total vendido</strong>
+                  <span class="muted">${this.formatCurrency(this.totalCouponSalesByAthlete(id))}</span>
+                </div>
+                <div class="chip">
+                  <strong>Pedidos</strong>
+                  <span class="muted">${this.totalCouponOrdersByAthlete(id)}</span>
+                </div>
+                <div class="chip">
+                  <strong>Comissao estimada</strong>
+                  <span class="muted">${this.formatCurrency(this.estimatedCommissionByAthlete(id))}</span>
+                </div>
+                <div class="chip">
+                  <strong>Cupom</strong>
+                  <span class="muted">${this.escape(athlete.cupomAtleta || "-")}</span>
+                </div>
+              </div>
+            `;
+            body = couponSales.length ? `
+              <div class="card">
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Data</th><th>Valor total</th><th>Pedidos</th><th>Observacao</th><th>Acoes</th></tr></thead>
+                    <tbody>
+                      ${couponSales.map((item) => `
+                        <tr>
+                          <td>${this.formatDate(item.dataVenda)}</td>
+                          <td>${this.formatCurrency(item.valorTotal)}</td>
+                          <td>${this.escape(item.quantidadePedidos)}</td>
+                          <td>${this.escape(item.observacao || "-")}</td>
+                          <td>
+                            <div class="actions">
+                              <button class="action-link" type="button" onclick="App.openCouponSaleForm(${item.id}, ${id}, 'vendas')">Editar</button>
+                              <button class="action-link danger" type="button" onclick="App.deleteEntity('couponSales', ${item.id}, ${id}, 'vendas')">Excluir</button>
+                            </div>
+                          </td>
+                        </tr>
+                      `).join("")}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ` : `<div class="card empty">Nenhuma venda por cupom cadastrada.</div>`;
+          }
+
+          this.openModal(
+            `Perfil de ${this.escape(athlete.nome)}`,
+            `
+              ${metrics}
+              <div class="tabs">${tabs}</div>
+              ${profileActions}
+              ${body}
+            `
+          );
+        },
+
+        profileMetric(label, value) {
+          return `
+            <div class="card profile-metric">
+              <div style="font-size:24px; font-weight:700;">${this.escape(value)}</div>
+              <div class="meta" style="margin-top:6px;">${label}</div>
+            </div>
+          `;
+        },
+
+        detailRow(label, value) {
+          return `
+            <div class="label">${label}</div>
+            <div>${value || "-"}</div>
+          `;
+        }
+      };
+
+      window.App = App;
+      App.init();
+    </script>
+  </body>
+</html>
