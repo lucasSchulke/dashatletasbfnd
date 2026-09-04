@@ -461,6 +461,53 @@
         color: var(--danger);
       }
 
+      .action-menu {
+        position: relative;
+        display: inline-block;
+      }
+
+      .action-menu summary {
+        list-style: none;
+        cursor: pointer;
+        border: 1px solid #d8e4d8;
+        border-radius: 8px;
+        background: #fff;
+        color: var(--text);
+        font-weight: 700;
+        line-height: 1;
+        padding: 7px 9px;
+      }
+
+      .action-menu summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .action-menu-items {
+        position: absolute;
+        z-index: 20;
+        right: 0;
+        top: calc(100% + 6px);
+        min-width: 112px;
+        padding: 6px;
+        border: 1px solid #d8e4d8;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 12px 24px rgba(29, 54, 37, 0.14);
+      }
+
+      .action-menu-items .action-link {
+        display: block;
+        width: 100%;
+        padding: 8px 9px;
+        text-align: left;
+        text-decoration: none;
+        border-radius: 6px;
+      }
+
+      .action-menu-items .action-link:hover {
+        background: #f2f7f2;
+      }
+
       .empty {
         padding: 36px 20px;
         text-align: center;
@@ -760,7 +807,8 @@
         { key: "posts", label: "Posts", icon: "📱" },
         { key: "conversas", label: "Conversas", icon: "💬" },
         { key: "produtos", label: "Produtos", icon: "📦" },
-        { key: "tarefas", label: "Tarefas", icon: "✅" }
+        { key: "tarefas", label: "Tarefas", icon: "✅" },
+        { key: "financeiro", label: "Financeiro", icon: "💰" }
       ];
 
       const STATUS_ATLETA = ["ativo", "prospect", "pausado", "encerrado"];
@@ -770,6 +818,8 @@
       const TIPOS_POST = ["story", "reel", "post", "tiktok", "youtube"];
       const CANAIS = ["whatsapp", "instagram", "email"];
       const MODALIDADES = ["Surf", "Skate", "Crossfit", "Corrida", "Fitness", "Futebol", "Basquete", "Natacao", "Ciclismo", "MMA", "Yoga", "Outro"];
+      const CATEGORIAS_FINANCEIRAS = ["Cache", "Comissao", "Viagem", "Hospedagem", "Frete", "Evento", "Producao", "Outro"];
+      const STATUS_FINANCEIRO = ["pago", "pendente"];
 
       const App = {
         state: {
@@ -779,11 +829,12 @@
           returnToProfile: null,
           syncing: false,
           filters: {
-            atletas: { search: "", status: "", modalidade: "" },
+            atletas: { search: "", status: "", modalidade: "", origem: "", cidade: "", agencia: "", minSeguidores: "", maxSeguidores: "" },
             posts: { atletaId: "", plataforma: "", tipo: "" },
             conversas: { atletaId: "" },
             produtos: { status: "" },
-            tarefas: { status: "" }
+            tarefas: { status: "" },
+            financeiro: { search: "", atletaId: "", origem: "", categoria: "", status: "", dataInicio: "", dataFim: "" }
           }
         },
 
@@ -911,7 +962,8 @@
             this.supabaseRequest("products?select=*"),
             this.supabaseRequest("tasks?select=*"),
             this.supabaseRequest("couponSales?select=*"),
-            this.supabaseRequest("attachments?select=*", { silent: true }).catch(() => [])
+            this.supabaseRequest("attachments?select=*", { silent: true }).catch(() => []),
+            this.supabaseRequest("expenses?select=*", { silent: true }).catch(() => [])
           ]);
 
           return this.normalizeDb({
@@ -922,7 +974,8 @@
             products: result[3] || [],
             tasks: result[4] || [],
             couponSales: result[5] || [],
-            attachments: result[6] || []
+            attachments: result[6] || [],
+            expenses: result[7] || []
           });
         },
 
@@ -933,6 +986,7 @@
         normalizeDb(db) {
           db.couponSales = db.couponSales || [];
           db.attachments = db.attachments || [];
+          db.expenses = db.expenses || [];
           db.meta = db.meta || {};
           db.meta.couponSales = db.meta.couponSales || (
             db.couponSales.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1
@@ -1069,6 +1123,7 @@
           if (this.state.view === "conversas") root.innerHTML = this.renderConversations();
           if (this.state.view === "produtos") root.innerHTML = this.renderProducts();
           if (this.state.view === "tarefas") root.innerHTML = this.renderTasks();
+          if (this.state.view === "financeiro") root.innerHTML = this.renderFinance();
         },
 
         athleteById(id) {
@@ -1183,6 +1238,15 @@
 
         badge(status) {
           return `<span class="badge badge-${status}">${this.escape(String(status || "").split("_").join(" "))}</span>`;
+        },
+
+        actionMenu(items) {
+          return `
+            <details class="action-menu">
+              <summary aria-label="Mais acoes" title="Mais acoes">...</summary>
+              <div class="action-menu-items">${items}</div>
+            </details>
+          `;
         },
 
         async saveRecord(collection, record, id) {
@@ -1471,13 +1535,146 @@
           `;
         },
 
+        financeRecords() {
+          const manualExpenses = (this.db.expenses || []).map((item) => ({
+            source: "expense",
+            sourceId: item.id,
+            atletaId: item.atletaId,
+            data: item.dataLancamento,
+            categoria: item.categoria || "Outro",
+            descricao: item.descricao || "Lancamento financeiro",
+            campanha: item.campanha || "",
+            status: item.statusPagamento || "pendente",
+            valor: Number(item.valor || 0)
+          }));
+          const productExpenses = this.db.products.map((item) => ({
+            source: "product",
+            sourceId: item.id,
+            atletaId: item.atletaId,
+            data: item.dataEnvio || String(item.createdAt || "").slice(0, 10),
+            categoria: "Produto enviado",
+            descricao: item.produto || "Produto enviado",
+            campanha: "",
+            status: "pago",
+            valor: Number(item.custoTotal || 0)
+          }));
+
+          return manualExpenses.concat(productExpenses)
+            .map((item) => ({ ...item, origem: (this.athleteById(item.atletaId) || {}).origem || "Nao informado" }))
+            .sort((a, b) => String(b.data || "").localeCompare(String(a.data || "")));
+        },
+
+        financeStatusControl(id, currentStatus) {
+          return `
+            <select class="status-select status-${currentStatus}" onchange="App.changeFinanceStatus(${Number(id)}, this.value)">
+              ${STATUS_FINANCEIRO.map((item) => `<option value="${item}" ${item === currentStatus ? "selected" : ""}>${item}</option>`).join("")}
+            </select>
+          `;
+        },
+
+        async changeFinanceStatus(id, value) {
+          const record = (this.db.expenses || []).find((item) => Number(item.id) === Number(id));
+          if (!record) return;
+          record.statusPagamento = value;
+          record.updatedAt = this.nowIso();
+          await this.saveRecord("expenses", record, record.id);
+          await this.afterEntitySave();
+        },
+
+        renderFinance() {
+          const filters = this.state.filters.financeiro;
+          const allRows = this.financeRecords();
+          const rows = allRows
+            .filter((item) => !filters.search || `${this.athleteNameById(item.atletaId)} ${item.descricao}`.toLowerCase().includes(filters.search.toLowerCase()))
+            .filter((item) => !filters.atletaId || String(item.atletaId) === String(filters.atletaId))
+            .filter((item) => !filters.origem || item.origem === filters.origem)
+            .filter((item) => !filters.categoria || item.categoria === filters.categoria)
+            .filter((item) => !filters.status || item.status === filters.status)
+            .filter((item) => !filters.dataInicio || String(item.data || "") >= filters.dataInicio)
+            .filter((item) => !filters.dataFim || String(item.data || "") <= filters.dataFim);
+
+          const total = rows.reduce((sum, item) => sum + item.valor, 0);
+          const totalPago = rows.filter((item) => item.status === "pago").reduce((sum, item) => sum + item.valor, 0);
+          const totalPendente = rows.filter((item) => item.status === "pendente").reduce((sum, item) => sum + item.valor, 0);
+          const custoProdutos = rows.filter((item) => item.source === "product").reduce((sum, item) => sum + item.valor, 0);
+          const totalAtletas = new Set(rows.map((item) => item.atletaId)).size;
+          const origins = [...new Set(this.db.athletes.map((item) => item.origem || "Nao informado"))].sort((a, b) => a.localeCompare(b));
+          const categories = [...new Set(allRows.map((item) => item.categoria))].sort((a, b) => a.localeCompare(b));
+          const topAthletes = Object.values(rows.reduce((result, item) => {
+            const key = String(item.atletaId);
+            result[key] = result[key] || { atletaId: item.atletaId, total: 0 };
+            result[key].total += item.valor;
+            return result;
+          }, {})).sort((a, b) => b.total - a.total).slice(0, 5);
+
+          return `
+            ${this.sectionHeader(
+              "Financeiro",
+              "Custos gerais, lancamentos manuais e produtos enviados",
+              `<button class="btn btn-primary" type="button" onclick="App.openExpenseForm()">Novo lancamento</button>`
+            )}
+
+            <div class="stats-grid">
+              ${this.statCard("Custo total", this.formatCurrency(total))}
+              ${this.statCard("Total pago", this.formatCurrency(totalPago))}
+              ${this.statCard("A pagar", this.formatCurrency(totalPendente))}
+              ${this.statCard("Produtos enviados", this.formatCurrency(custoProdutos))}
+              ${this.statCard("Atletas no periodo", totalAtletas)}
+              ${this.statCard("Lancamentos", rows.length)}
+            </div>
+
+            <div class="filters">
+              <div class="filter-field"><input class="input" placeholder="Buscar atleta ou descricao..." value="${this.escape(filters.search)}" oninput="App.updateFilter('financeiro','search', this.value)" /></div>
+              <div class="filter-field"><select class="select" onchange="App.updateFilter('financeiro','atletaId', this.value)"><option value="">Todos os atletas</option>${this.athleteOptions(filters.atletaId)}</select></div>
+              <div class="filter-field"><select class="select" onchange="App.updateFilter('financeiro','origem', this.value)"><option value="">Todas as origens</option>${origins.map((item) => `<option value="${this.escape(item)}" ${filters.origem === item ? "selected" : ""}>${this.escape(item)}</option>`).join("")}</select></div>
+              <div class="filter-field"><select class="select" onchange="App.updateFilter('financeiro','categoria', this.value)"><option value="">Todas as categorias</option>${categories.map((item) => `<option value="${this.escape(item)}" ${filters.categoria === item ? "selected" : ""}>${this.escape(item)}</option>`).join("")}</select></div>
+              <div class="filter-field"><select class="select" onchange="App.updateFilter('financeiro','status', this.value)"><option value="">Pago e pendente</option>${STATUS_FINANCEIRO.map((item) => `<option value="${item}" ${filters.status === item ? "selected" : ""}>${item}</option>`).join("")}</select></div>
+              <div class="filter-field"><input class="input" type="date" value="${this.escape(filters.dataInicio)}" onchange="App.updateFilter('financeiro','dataInicio', this.value)" /></div>
+              <div class="filter-field"><input class="input" type="date" value="${this.escape(filters.dataFim)}" onchange="App.updateFilter('financeiro','dataFim', this.value)" /></div>
+            </div>
+
+            <div class="columns-3" style="grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);">
+              <div class="card">
+                <div class="panel-head"><strong>Lancamentos</strong><span class="meta">Produtos entram automaticamente</span></div>
+                ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Data</th><th>Atleta</th><th>Origem</th><th>Categoria</th><th>Descricao</th><th>Status</th><th>Valor</th><th>Acoes</th></tr></thead><tbody>
+                  ${rows.map((item) => `<tr>
+                    <td>${this.formatDate(item.data)}</td>
+                    <td>${this.athleteProfileTrigger(item.atletaId, this.athleteNameById(item.atletaId))}</td>
+                    <td>${this.escape(item.origem)}</td>
+                    <td>${this.escape(item.categoria)}</td>
+                    <td>${this.escape(item.descricao)}${item.campanha ? `<div class="meta">${this.escape(item.campanha)}</div>` : ""}</td>
+                    <td>${item.source === "expense" ? this.financeStatusControl(item.sourceId, item.status) : `<span class="badge badge-ativo">pago</span>`}</td>
+                    <td><strong>${this.formatCurrency(item.valor)}</strong></td>
+                    <td>${item.source === "expense" ? this.actionMenu(`<button class="action-link" type="button" onclick="App.openExpenseForm(${item.sourceId})">Editar</button><button class="action-link danger" type="button" onclick="App.deleteEntity('expenses', ${item.sourceId})">Excluir</button>`) : this.actionMenu(`<button class="action-link" type="button" onclick="App.openProductForm(${item.sourceId})">Editar produto</button><button class="action-link danger" type="button" onclick="App.deleteEntity('products', ${item.sourceId})">Excluir produto</button>`)}</td>
+                  </tr>`).join("")}
+                </tbody></table></div>` : `<div class="empty">Nenhum lancamento encontrado para estes filtros.</div>`}
+              </div>
+              <div class="card">
+                <div class="panel-head"><strong>Maior custo</strong></div>
+                <div class="panel-body">
+                  ${topAthletes.length ? `<div class="list">${topAthletes.map((item) => `<div class="list-item"><strong>${this.athleteProfileTrigger(item.atletaId, this.athleteNameById(item.atletaId))}</strong><div class="meta" style="margin-top:6px;">${this.formatCurrency(item.total)}</div></div>`).join("")}</div>` : `<div class="empty">Sem custos no periodo.</div>`}
+                </div>
+              </div>
+            </div>
+          `;
+        },
+
         renderAthletes() {
           const filters = this.state.filters.atletas;
           const rows = this.db.athletes
             .filter((item) => !filters.search || item.nome.toLowerCase().indexOf(filters.search.toLowerCase()) !== -1)
             .filter((item) => !filters.status || item.status === filters.status)
             .filter((item) => !filters.modalidade || item.modalidade === filters.modalidade)
+            .filter((item) => !filters.origem || String(item.origem || "Nao informado") === filters.origem)
+            .filter((item) => !filters.cidade || String(item.cidade || "") === filters.cidade)
+            .filter((item) => !filters.agencia || String(item.agenciaResponsavel || "") === filters.agencia)
+            .filter((item) => !filters.minSeguidores || Number(item.numeroSeguidores || 0) >= Number(filters.minSeguidores))
+            .filter((item) => !filters.maxSeguidores || Number(item.numeroSeguidores || 0) <= Number(filters.maxSeguidores))
             .sort((a, b) => a.nome.localeCompare(b.nome));
+
+          const origins = [...new Set(this.db.athletes.map((item) => String(item.origem || "Nao informado")))].sort((a, b) => a.localeCompare(b));
+          const cities = [...new Set(this.db.athletes.map((item) => String(item.cidade || "")).filter((item) => item))].sort((a, b) => a.localeCompare(b));
+          const agencies = [...new Set(this.db.athletes.map((item) => String(item.agenciaResponsavel || "")).filter((item) => item))].sort((a, b) => a.localeCompare(b));
 
           return `
             ${this.sectionHeader(
@@ -1500,6 +1697,26 @@
                   ${this.modalidadesDisponiveis().map((item) => `<option value="${item}" ${filters.modalidade === item ? "selected" : ""}>${item}</option>`).join("")}
                 </select>
               </div>
+              <div class="filter-field">
+                <select class="select" onchange="App.updateFilter('atletas','origem', this.value)">
+                  <option value="">Todas as origens</option>
+                  ${origins.map((item) => `<option value="${this.escape(item)}" ${filters.origem === item ? "selected" : ""}>${this.escape(item)}</option>`).join("")}
+                </select>
+              </div>
+              <div class="filter-field">
+                <select class="select" onchange="App.updateFilter('atletas','cidade', this.value)">
+                  <option value="">Todas as cidades</option>
+                  ${cities.map((item) => `<option value="${this.escape(item)}" ${filters.cidade === item ? "selected" : ""}>${this.escape(item)}</option>`).join("")}
+                </select>
+              </div>
+              <div class="filter-field">
+                <select class="select" onchange="App.updateFilter('atletas','agencia', this.value)">
+                  <option value="">Todas as agencias</option>
+                  ${agencies.map((item) => `<option value="${this.escape(item)}" ${filters.agencia === item ? "selected" : ""}>${this.escape(item)}</option>`).join("")}
+                </select>
+              </div>
+              <div class="filter-field"><input class="input" type="number" min="0" placeholder="Seguidores min." value="${this.escape(filters.minSeguidores)}" oninput="App.updateFilter('atletas','minSeguidores', this.value)" /></div>
+              <div class="filter-field"><input class="input" type="number" min="0" placeholder="Seguidores max." value="${this.escape(filters.maxSeguidores)}" oninput="App.updateFilter('atletas','maxSeguidores', this.value)" /></div>
             </div>
 
             <div class="card">
@@ -1508,6 +1725,7 @@
                   <table>
                     <thead>
                       <tr>
+                        <th>Origem</th>
                         <th>Nome</th>
                         <th>Instagram</th>
                         <th>Modalidade</th>
@@ -1521,6 +1739,7 @@
                     <tbody>
                       ${rows.map((item) => `
                         <tr>
+                          <td>${this.escape(item.origem || "Nao informado")}</td>
                           <td><strong>${this.athleteProfileTrigger(item.id, item.nome)}</strong></td>
                           <td>${this.escape(item.instagram || "-")}</td>
                           <td>${this.escape(item.modalidade || "-")}</td>
@@ -1529,10 +1748,10 @@
                           <td>${this.countPostsByAthlete(item.id)}</td>
                           <td>${this.escape(item.cupomAtleta || "-")}</td>
                           <td>
-                            <div class="actions">
+                            ${this.actionMenu(`
                               <button class="action-link" type="button" onclick="App.openAthleteForm(${item.id})">Editar</button>
                               <button class="action-link danger" type="button" onclick="App.deleteAthlete(${item.id})">Excluir</button>
-                            </div>
+                            `)}
                           </td>
                         </tr>
                       `).join("")}
@@ -1609,10 +1828,10 @@
                           <td>${this.formatNumber(item.likes)}</td>
                           <td>${this.formatNumber(item.saves)}</td>
                           <td>
-                            <div class="actions">
+                            ${this.actionMenu(`
                               <button class="action-link" type="button" onclick="App.openPostForm(${item.id})">Editar</button>
                               <button class="action-link danger" type="button" onclick="App.deleteEntity('posts', ${item.id})">Excluir</button>
-                            </div>
+                            `)}
                           </td>
                         </tr>
                       `).join("")}
@@ -1659,10 +1878,10 @@
                       <div>${this.escape(item.resumoConversa)}</div>
                       <div class="meta" style="margin-top:8px;">Proximo passo: ${this.escape(item.proximoPasso || "-")}</div>
                     </div>
-                    <div class="actions">
+                    ${this.actionMenu(`
                       <button class="action-link" type="button" onclick="App.openConversationForm(${item.id})">Editar</button>
                       <button class="action-link danger" type="button" onclick="App.deleteEntity('conversations', ${item.id})">Excluir</button>
-                    </div>
+                    `)}
                   </div>
                 </div>
               `).join("") : `<div class="card empty">Nenhuma conversa encontrada.</div>`}
@@ -1742,10 +1961,10 @@
                           <td>${this.statusControl("product", item.id, item.status)}</td>
                           <td>${this.formatDate(item.dataEnvio)}</td>
                           <td>
-                            <div class="actions">
+                            ${this.actionMenu(`
                               <button class="action-link" type="button" onclick="App.openProductForm(${item.id})">Editar</button>
                               <button class="action-link danger" type="button" onclick="App.deleteEntity('products', ${item.id})">Excluir</button>
-                            </div>
+                            `)}
                           </td>
                         </tr>
                       `).join("")}
@@ -1790,8 +2009,10 @@
                     </div>
                     <div class="actions">
                       ${this.statusControl("task", item.id, status)}
-                      <button class="action-link" type="button" onclick="App.openTaskForm(${item.id})">Editar</button>
-                      <button class="action-link danger" type="button" onclick="App.deleteEntity('tasks', ${item.id})">Excluir</button>
+                      ${this.actionMenu(`
+                        <button class="action-link" type="button" onclick="App.openTaskForm(${item.id})">Editar</button>
+                        <button class="action-link danger" type="button" onclick="App.deleteEntity('tasks', ${item.id})">Excluir</button>
+                      `)}
                     </div>
                   </div>
                 `;
@@ -1826,7 +2047,8 @@
             products: "produto",
             tasks: "tarefa",
             couponSales: "venda",
-            attachments: "anexo"
+            attachments: "anexo",
+            expenses: "lancamento"
           };
           if (!confirm(`Excluir ${names[collection] || "registro"}?`)) return;
           this.setReturnToProfile(athleteId, tab);
@@ -1991,7 +2213,8 @@
           }
         },
 
-        openAthleteForm(id) {
+        openAthleteForm(id, athleteId, sourceTab) {
+          this.setReturnToProfile(athleteId, sourceTab);
           const athlete = id ? this.athleteById(id) : null;
           const athleteData = athlete || {};
           const modalidades = this.modalidadesDisponiveis();
@@ -2008,6 +2231,17 @@
                   ${this.field("WhatsApp", `<input class="input" name="whatsapp" value="${this.escape(athleteData.whatsapp || "")}" />`)}
                   ${this.field("Cidade", `<input class="input" name="cidade" value="${this.escape(athleteData.cidade || "")}" />`)}
                   ${this.field("Endereco", `<input class="input" name="endereco" value="${this.escape(athleteData.endereco || "")}" />`, true)}
+                  ${this.field("Origem", `
+                    <input class="input" name="origem" list="origens-list" value="${this.escape(athleteData.origem || "Nao informado")}" placeholder="Ex.: Indicacao, Agencia, Evento" />
+                    <datalist id="origens-list">
+                      <option value="Indicacao"></option>
+                      <option value="Agencia"></option>
+                      <option value="Evento"></option>
+                      <option value="Prospecao"></option>
+                      <option value="Instagram"></option>
+                      <option value="Nao informado"></option>
+                    </datalist>
+                  `)}
                   ${this.field("Modalidade", `
                     <input class="input" name="modalidade" list="modalidades-list" value="${this.escape(athleteData.modalidade || "")}" placeholder="Selecione ou digite uma nova modalidade" />
                     <datalist id="modalidades-list">
@@ -2028,7 +2262,7 @@
                   ${this.field("Comissao percentual", `<input class="input" type="number" step="0.1" name="comissaoPercentual" value="${this.escape(athleteData.comissaoPercentual || "")}" />`)}
                 </div>
                 <div class="form-actions">
-                  <button class="btn btn-secondary" type="button" onclick="App.closeModal()">Cancelar</button>
+                  <button class="btn btn-secondary" type="button" onclick="App.cancelModalFlow()">Cancelar</button>
                   <button class="btn btn-primary" type="submit">${athlete ? "Salvar alteracoes" : "Criar atleta"}</button>
                 </div>
               </form>
@@ -2049,6 +2283,7 @@
             whatsapp: String(fd.get("whatsapp") || "").trim(),
             cidade: String(fd.get("cidade") || "").trim(),
             endereco: String(fd.get("endereco") || "").trim(),
+            origem: String(fd.get("origem") || "Nao informado").trim() || "Nao informado",
             modalidade: String(fd.get("modalidade") || "").trim(),
             numeroSeguidores: Number(fd.get("numeroSeguidores") || 0) || 0,
             dataInicioParceria: this.emptyToNull(fd.get("dataInicioParceria")),
@@ -2352,6 +2587,54 @@
           await this.afterEntitySave();
         },
 
+        openExpenseForm(id) {
+          if (!this.db.athletes.length) return alert("Cadastre um atleta antes de criar um lancamento.");
+          this.setReturnToProfile(null);
+          const expense = id ? (this.db.expenses || []).find((item) => Number(item.id) === Number(id)) : null;
+          const recordData = expense || {};
+          this.openModal(
+            expense ? "Editar lancamento" : "Novo lancamento",
+            `
+              <form onsubmit="App.submitExpense(event, ${id || "null"})">
+                <div class="form-grid">
+                  ${this.field("Atleta *", `<select class="select" name="atletaId" required><option value="">Selecione</option>${this.athleteOptions(recordData.atletaId)}</select>`, true)}
+                  ${this.field("Categoria *", `<select class="select" name="categoria" required>${CATEGORIAS_FINANCEIRAS.map((item) => `<option value="${item}" ${String(recordData.categoria || "Cache") === item ? "selected" : ""}>${item}</option>`).join("")}</select>`)}
+                  ${this.field("Valor *", `<input class="input" type="number" step="0.01" min="0" name="valor" required value="${this.escape(recordData.valor || "")}" />`)}
+                  ${this.field("Data *", `<input class="input" type="date" name="dataLancamento" required value="${this.escape(recordData.dataLancamento || this.today())}" />`)}
+                  ${this.field("Status", `<select class="select" name="statusPagamento">${STATUS_FINANCEIRO.map((item) => `<option value="${item}" ${String(recordData.statusPagamento || "pendente") === item ? "selected" : ""}>${item}</option>`).join("")}</select>`)}
+                  ${this.field("Campanha", `<input class="input" name="campanha" value="${this.escape(recordData.campanha || "")}" />`)}
+                  ${this.field("Descricao *", `<textarea class="textarea" name="descricao" required>${this.escape(recordData.descricao || "")}</textarea>`, true)}
+                </div>
+                <div class="meta" style="margin-top:12px;">Produtos enviados ja entram no Financeiro automaticamente.</div>
+                <div class="form-actions">
+                  <button class="btn btn-secondary" type="button" onclick="App.cancelModalFlow()">Cancelar</button>
+                  <button class="btn btn-primary" type="submit">Salvar lancamento</button>
+                </div>
+              </form>
+            `
+          );
+        },
+
+        async submitExpense(event, id) {
+          event.preventDefault();
+          const fd = new FormData(event.target);
+          const existing = id ? (this.db.expenses || []).find((item) => Number(item.id) === Number(id)) : null;
+          const record = {
+            atletaId: Number(fd.get("atletaId")),
+            categoria: String(fd.get("categoria") || "Outro"),
+            descricao: String(fd.get("descricao") || "").trim(),
+            campanha: String(fd.get("campanha") || "").trim(),
+            valor: Number(fd.get("valor") || 0) || 0,
+            dataLancamento: this.emptyToNull(fd.get("dataLancamento")) || this.today(),
+            statusPagamento: String(fd.get("statusPagamento") || "pendente"),
+            createdAt: existing ? existing.createdAt : this.nowIso(),
+            updatedAt: this.nowIso()
+          };
+
+          await this.saveRecord("expenses", record, existing ? existing.id : null);
+          await this.afterEntitySave();
+        },
+
         openCouponSaleForm(id, athleteId, sourceTab) {
           if (!this.db.athletes.length) return alert("Cadastre um atleta antes de registrar vendas.");
           this.setReturnToProfile(athleteId, sourceTab);
@@ -2494,6 +2777,11 @@
           let body = "";
 
           if (this.state.profileTab === "dados") {
+            profileActions = `
+              <div class="actions" style="margin-bottom: 14px;">
+                <button class="btn btn-primary" type="button" onclick="App.openAthleteForm(${id}, ${id}, 'dados')">Editar dados</button>
+              </div>
+            `;
             body = `
               <div class="card panel-body">
                 <div class="details-grid">
@@ -2504,6 +2792,7 @@
                   ${this.detailRow("WhatsApp", athlete.whatsapp)}
                   ${this.detailRow("Cidade", athlete.cidade)}
                   ${this.detailRow("Endereco", athlete.endereco)}
+                  ${this.detailRow("Origem", athlete.origem || "Nao informado")}
                   ${this.detailRow("Modalidade", athlete.modalidade)}
                   ${this.detailRow("Inicio parceria", this.formatDate(athlete.dataInicioParceria))}
                   ${this.detailRow("Status", this.statusControl("athlete", athlete.id, athlete.status, athlete.id, "dados"))}
@@ -2529,7 +2818,7 @@
               <div class="card">
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th>Plataforma</th><th>Tipo</th><th>Data</th><th>Campanha</th><th>Views</th><th>Likes</th></tr></thead>
+                    <thead><tr><th>Plataforma</th><th>Tipo</th><th>Data</th><th>Campanha</th><th>Views</th><th>Likes</th><th>Acoes</th></tr></thead>
                     <tbody>
                       ${posts.map((item) => `
                         <tr>
@@ -2539,6 +2828,12 @@
                           <td>${this.escape(item.campanhaVinculada || "-")}</td>
                           <td>${this.formatNumber(item.views)}</td>
                           <td>${this.formatNumber(item.likes)}</td>
+                          <td>
+                            ${this.actionMenu(`
+                              <button class="action-link" type="button" onclick="App.openPostForm(${item.id}, ${id}, 'posts')">Editar</button>
+                              <button class="action-link danger" type="button" onclick="App.deleteEntity('posts', ${item.id}, ${id}, 'posts')">Excluir</button>
+                            `)}
+                          </td>
                         </tr>
                       `).join("")}
                     </tbody>
@@ -2562,6 +2857,12 @@
                     <div class="meta">${this.formatDate(item.dataConversa)}</div>
                     <div style="margin-top:8px;">${this.escape(item.resumoConversa)}</div>
                     <div class="meta" style="margin-top:8px;">Proximo passo: ${this.escape(item.proximoPasso || "-")}</div>
+                    <div style="margin-top:12px;">
+                      ${this.actionMenu(`
+                        <button class="action-link" type="button" onclick="App.openConversationForm(${item.id}, ${id}, 'conversas')">Editar</button>
+                        <button class="action-link danger" type="button" onclick="App.deleteEntity('conversations', ${item.id}, ${id}, 'conversas')">Excluir</button>
+                      `)}
+                    </div>
                   </div>
                 `).join("")}
               </div>
@@ -2578,7 +2879,7 @@
               <div class="card">
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th>Produto</th><th>Tamanho</th><th>Qtd</th><th>Custo</th><th>Status</th><th>Envio</th></tr></thead>
+                    <thead><tr><th>Produto</th><th>Tamanho</th><th>Qtd</th><th>Custo</th><th>Status</th><th>Envio</th><th>Acoes</th></tr></thead>
                     <tbody>
                       ${products.map((item) => `
                         <tr>
@@ -2588,6 +2889,12 @@
                           <td>${this.formatCurrency(item.custoTotal)}</td>
                           <td>${this.statusControl("product", item.id, item.status, id, "produtos")}</td>
                           <td>${this.formatDate(item.dataEnvio)}</td>
+                          <td>
+                            ${this.actionMenu(`
+                              <button class="action-link" type="button" onclick="App.openProductForm(${item.id}, ${id}, 'produtos')">Editar</button>
+                              <button class="action-link danger" type="button" onclick="App.deleteEntity('products', ${item.id}, ${id}, 'produtos')">Excluir</button>
+                            `)}
+                          </td>
                         </tr>
                       `).join("")}
                     </tbody>
@@ -2611,7 +2918,13 @@
                       <strong>${this.escape(item.tarefa)}</strong>
                       <div class="meta">Prazo ${this.formatDate(item.prazo)}${item.campanha ? ` • ${this.escape(item.campanha)}` : ""}</div>
                     </div>
-                    ${this.statusControl("task", item.id, this.computedTaskStatus(item), id, "tarefas")}
+                    <div class="actions">
+                      ${this.statusControl("task", item.id, this.computedTaskStatus(item), id, "tarefas")}
+                      ${this.actionMenu(`
+                        <button class="action-link" type="button" onclick="App.openTaskForm(${item.id}, ${id}, 'tarefas')">Editar</button>
+                        <button class="action-link danger" type="button" onclick="App.deleteEntity('tasks', ${item.id}, ${id}, 'tarefas')">Excluir</button>
+                      `)}
+                    </div>
                   </div>
                 `).join("")}
               </div>
@@ -2655,10 +2968,10 @@
                           <td>${this.escape(item.quantidadePedidos)}</td>
                           <td>${this.escape(item.observacao || "-")}</td>
                           <td>
-                            <div class="actions">
+                            ${this.actionMenu(`
                               <button class="action-link" type="button" onclick="App.openCouponSaleForm(${item.id}, ${id}, 'vendas')">Editar</button>
                               <button class="action-link danger" type="button" onclick="App.deleteEntity('couponSales', ${item.id}, ${id}, 'vendas')">Excluir</button>
-                            </div>
+                            `)}
                           </td>
                         </tr>
                       `).join("")}
@@ -2689,10 +3002,10 @@
                           <td>${this.escape(item.observacao || "-")}</td>
                           <td>${this.formatDate(item.createdAt)}</td>
                           <td>
-                            <div class="actions">
+                            ${this.actionMenu(`
                               <a class="action-link" href="${this.escape(item.urlArquivo || this.storagePublicUrl(item.caminhoArquivo))}" target="_blank" rel="noopener">Abrir</a>
                               <button class="action-link danger" type="button" onclick="App.deleteAttachment(${item.id}, ${id})">Excluir</button>
-                            </div>
+                            `)}
                           </td>
                         </tr>
                       `).join("")}
