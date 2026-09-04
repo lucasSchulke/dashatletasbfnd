@@ -751,6 +751,8 @@
       const SUPABASE_URL = "https://qkphvlfurbnrlcoyuuim.supabase.co";
       const SUPABASE_ANON_KEY = "sb_publishable__EwQwgsukP7F19sDJ0CVQQ__J3UamJC";
       const AUTO_REFRESH_MS = 10000;
+      const ATTACHMENTS_BUCKET = "dashboard-anexos";
+      const MAX_ATTACHMENT_SIZE = 6 * 1024 * 1024;
 
       const NAV_ITEMS = [
         { key: "dashboard", label: "Dashboard", icon: "📊" },
@@ -864,7 +866,9 @@
                 message = text;
               }
             }
-            alert(message);
+            if (!config.silent) {
+              alert(message);
+            }
             throw new Error(text || `Erro ${response.status}`);
           }
 
@@ -906,7 +910,8 @@
             this.supabaseRequest("conversations?select=*"),
             this.supabaseRequest("products?select=*"),
             this.supabaseRequest("tasks?select=*"),
-            this.supabaseRequest("couponSales?select=*")
+            this.supabaseRequest("couponSales?select=*"),
+            this.supabaseRequest("attachments?select=*", { silent: true }).catch(() => [])
           ]);
 
           return this.normalizeDb({
@@ -916,7 +921,8 @@
             conversations: result[2] || [],
             products: result[3] || [],
             tasks: result[4] || [],
-            couponSales: result[5] || []
+            couponSales: result[5] || [],
+            attachments: result[6] || []
           });
         },
 
@@ -926,6 +932,7 @@
 
         normalizeDb(db) {
           db.couponSales = db.couponSales || [];
+          db.attachments = db.attachments || [];
           db.meta = db.meta || {};
           db.meta.couponSales = db.meta.couponSales || (
             db.couponSales.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1
@@ -1803,6 +1810,11 @@
           if (!athlete) return;
           if (!confirm(`Excluir ${athlete.nome} e todos os registros vinculados?`)) return;
 
+          const attachments = this.attachmentsByAthlete(id);
+          for (const attachment of attachments) {
+            await this.deleteStorageObject(attachment.caminhoArquivo).catch(() => null);
+          }
+          await this.deleteWhere("attachments", { atletaId: Number(id) }).catch(() => null);
           await this.deleteRecord("athletes", id);
           await this.afterEntitySave();
         },
@@ -1813,7 +1825,8 @@
             conversations: "conversa",
             products: "produto",
             tasks: "tarefa",
-            couponSales: "venda"
+            couponSales: "venda",
+            attachments: "anexo"
           };
           if (!confirm(`Excluir ${names[collection] || "registro"}?`)) return;
           this.setReturnToProfile(athleteId, tab);
@@ -1834,6 +1847,85 @@
           }
 
           await this.afterEntitySave();
+        },
+
+        attachmentsByAthlete(athleteId) {
+          return (this.db.attachments || [])
+            .filter((item) => Number(item.atletaId) === Number(athleteId))
+            .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+        },
+
+        storagePath(path) {
+          return String(path || "").split("/").map((part) => encodeURIComponent(part)).join("/");
+        },
+
+        sanitizeFileName(name) {
+          return String(name || "arquivo")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-zA-Z0-9._-]+/g, "-")
+            .replace(/^-+|-+$/g, "") || "arquivo";
+        },
+
+        formatFileSize(bytes) {
+          const value = Number(bytes) || 0;
+          if (value < 1024) return `${value} B`;
+          if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+          return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+        },
+
+        storagePublicUrl(path) {
+          return `${SUPABASE_URL}/storage/v1/object/public/${ATTACHMENTS_BUCKET}/${this.storagePath(path)}`;
+        },
+
+        async uploadStorageObject(path, file) {
+          const response = await fetch(`${SUPABASE_URL}/storage/v1/object/${ATTACHMENTS_BUCKET}/${this.storagePath(path)}`, {
+            method: "POST",
+            headers: {
+              apikey: SUPABASE_ANON_KEY,
+              Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+              "Content-Type": file.type || "application/octet-stream",
+              "x-upsert": "false"
+            },
+            body: file
+          });
+
+          if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || "Nao foi possivel enviar o arquivo.");
+          }
+        },
+
+        async deleteStorageObject(path) {
+          if (!path) return;
+          const response = await fetch(`${SUPABASE_URL}/storage/v1/object/${ATTACHMENTS_BUCKET}/${this.storagePath(path)}`, {
+            method: "DELETE",
+            headers: {
+              apikey: SUPABASE_ANON_KEY,
+              Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+            }
+          });
+
+          if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || "Nao foi possivel excluir o arquivo.");
+          }
+        },
+
+        async deleteAttachment(id, athleteId) {
+          const attachment = (this.db.attachments || []).find((item) => Number(item.id) === Number(id));
+          if (!attachment) return;
+          if (!confirm(`Excluir o anexo ${attachment.nomeArquivo}?`)) return;
+
+          this.setReturnToProfile(athleteId, "anexos");
+          try {
+            await this.deleteStorageObject(attachment.caminhoArquivo);
+            await this.deleteRecord("attachments", id);
+            await this.afterEntitySave();
+          } catch (error) {
+            alert("Nao foi possivel excluir o anexo. Tente novamente.");
+            console.error(error);
+          }
         },
 
         optionList(items, currentValue, emptyLabel) {
@@ -2304,6 +2396,64 @@
           await this.afterEntitySave();
         },
 
+        openAttachmentForm(athleteId, sourceTab) {
+          this.setReturnToProfile(athleteId, sourceTab || "anexos");
+          this.openModal(
+            "Novo anexo",
+            `
+              <form onsubmit="App.submitAttachment(event, ${Number(athleteId)})">
+                <div class="form-grid">
+                  ${this.field("Arquivo *", `<input class="input" type="file" name="arquivo" required accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt" />`, true)}
+                  ${this.field("Observacao", `<textarea class="textarea" name="observacao" placeholder="Ex.: contrato assinado, comprovante de envio..."></textarea>`, true)}
+                </div>
+                <div class="meta" style="margin-top: 12px;">Formatos: imagens, PDF, Word, Excel, CSV ou TXT. Tamanho maximo: 6 MB.</div>
+                <div class="form-actions">
+                  <button class="btn btn-secondary" type="button" onclick="App.cancelModalFlow()">Cancelar</button>
+                  <button class="btn btn-primary" type="submit">Enviar anexo</button>
+                </div>
+              </form>
+            `
+          );
+        },
+
+        async submitAttachment(event, athleteId) {
+          event.preventDefault();
+          const form = event.target;
+          const file = form.querySelector('[name="arquivo"]').files[0];
+          if (!file) return;
+          if (file.size > MAX_ATTACHMENT_SIZE) {
+            alert("O arquivo precisa ter no maximo 6 MB.");
+            return;
+          }
+
+          const submitButton = form.querySelector('button[type="submit"]');
+          submitButton.disabled = true;
+          submitButton.textContent = "Enviando...";
+
+          const path = `atletas/${Number(athleteId)}/${Date.now()}-${this.sanitizeFileName(file.name)}`;
+          try {
+            await this.uploadStorageObject(path, file);
+            await this.saveRecord("attachments", {
+              atletaId: Number(athleteId),
+              nomeArquivo: file.name,
+              caminhoArquivo: path,
+              urlArquivo: this.storagePublicUrl(path),
+              tipoArquivo: file.type || "arquivo",
+              tamanhoArquivo: file.size,
+              observacao: String(new FormData(form).get("observacao") || "").trim(),
+              createdAt: this.nowIso(),
+              updatedAt: this.nowIso()
+            }, null);
+            await this.afterEntitySave();
+          } catch (error) {
+            await this.deleteStorageObject(path).catch(() => null);
+            alert("Nao foi possivel enviar o anexo. Confirme se o SQL dos anexos foi executado no Supabase.");
+            console.error(error);
+            submitButton.disabled = false;
+            submitButton.textContent = "Enviar anexo";
+          }
+        },
+
         field(label, inputHtml, full) {
           return `
             <div class="field ${full ? "form-full" : ""}">
@@ -2323,6 +2473,7 @@
           const products = this.db.products.filter((item) => Number(item.atletaId) === Number(id)).sort((a, b) => String(b.dataEnvio || "").localeCompare(String(a.dataEnvio || "")));
           const couponSales = this.couponSalesByAthlete(id);
           const tasks = this.db.tasks.filter((item) => Number(item.atletaId) === Number(id)).sort((a, b) => String(a.prazo || "").localeCompare(String(b.prazo || "")));
+          const attachments = this.attachmentsByAthlete(id);
 
           const metrics = `
             <div class="profile-grid">
@@ -2335,7 +2486,7 @@
             </div>
           `;
 
-          const tabs = ["dados", "posts", "conversas", "produtos", "tarefas", "vendas"]
+          const tabs = ["dados", "posts", "conversas", "produtos", "tarefas", "vendas", "anexos"]
             .map((item) => `<button type="button" class="tab ${this.state.profileTab === item ? "active" : ""}" onclick="App.openAthleteProfile(${id}, '${item}')">${item}</button>`)
             .join("");
 
@@ -2516,6 +2667,40 @@
                 </div>
               </div>
             ` : `<div class="card empty">Nenhuma venda por cupom cadastrada.</div>`;
+          }
+
+          if (this.state.profileTab === "anexos") {
+            profileActions = `
+              <div class="actions" style="margin-bottom: 14px;">
+                <button class="btn btn-primary" type="button" onclick="App.openAttachmentForm(${id}, 'anexos')">Novo anexo</button>
+              </div>
+            `;
+            body = attachments.length ? `
+              <div class="card">
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Arquivo</th><th>Tipo</th><th>Tamanho</th><th>Observacao</th><th>Enviado em</th><th>Acoes</th></tr></thead>
+                    <tbody>
+                      ${attachments.map((item) => `
+                        <tr>
+                          <td><strong>${this.escape(item.nomeArquivo)}</strong></td>
+                          <td>${this.escape(item.tipoArquivo || "-")}</td>
+                          <td>${this.formatFileSize(item.tamanhoArquivo)}</td>
+                          <td>${this.escape(item.observacao || "-")}</td>
+                          <td>${this.formatDate(item.createdAt)}</td>
+                          <td>
+                            <div class="actions">
+                              <a class="action-link" href="${this.escape(item.urlArquivo || this.storagePublicUrl(item.caminhoArquivo))}" target="_blank" rel="noopener">Abrir</a>
+                              <button class="action-link danger" type="button" onclick="App.deleteAttachment(${item.id}, ${id})">Excluir</button>
+                            </div>
+                          </td>
+                        </tr>
+                      `).join("")}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ` : `<div class="card empty">Nenhum anexo cadastrado para este atleta.</div>`;
           }
 
           this.openModal(
