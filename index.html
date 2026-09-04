@@ -2224,6 +2224,16 @@
               <form onsubmit="App.submitAthlete(event, ${id || "null"})">
                 <div class="form-grid">
                   ${this.field("Nome *", `<input class="input" name="nome" required value="${this.escape(athleteData.nome || "")}" />`, true)}
+                  ${this.field("Origem", `
+                    <input class="input" name="origem" list="origens-list" value="${this.escape(athleteData.origem || "")}" placeholder="Digite ou selecione uma origem" />
+                    <datalist id="origens-list">
+                      <option value="Indicacao"></option>
+                      <option value="Agencia"></option>
+                      <option value="Evento"></option>
+                      <option value="Prospecao"></option>
+                      <option value="Instagram"></option>
+                    </datalist>
+                  `, true)}
                   ${this.field("Instagram", `<input class="input" name="instagram" value="${this.escape(athleteData.instagram || "")}" />`)}
                   ${this.field("TikTok", `<input class="input" name="tiktok" value="${this.escape(athleteData.tiktok || "")}" />`)}
                   ${this.field("Email", `<input class="input" type="email" name="email" value="${this.escape(athleteData.email || "")}" />`)}
@@ -2231,17 +2241,6 @@
                   ${this.field("WhatsApp", `<input class="input" name="whatsapp" value="${this.escape(athleteData.whatsapp || "")}" />`)}
                   ${this.field("Cidade", `<input class="input" name="cidade" value="${this.escape(athleteData.cidade || "")}" />`)}
                   ${this.field("Endereco", `<input class="input" name="endereco" value="${this.escape(athleteData.endereco || "")}" />`, true)}
-                  ${this.field("Origem", `
-                    <input class="input" name="origem" list="origens-list" value="${this.escape(athleteData.origem || "Nao informado")}" placeholder="Ex.: Indicacao, Agencia, Evento" />
-                    <datalist id="origens-list">
-                      <option value="Indicacao"></option>
-                      <option value="Agencia"></option>
-                      <option value="Evento"></option>
-                      <option value="Prospecao"></option>
-                      <option value="Instagram"></option>
-                      <option value="Nao informado"></option>
-                    </datalist>
-                  `)}
                   ${this.field("Modalidade", `
                     <input class="input" name="modalidade" list="modalidades-list" value="${this.escape(athleteData.modalidade || "")}" placeholder="Selecione ou digite uma nova modalidade" />
                     <datalist id="modalidades-list">
