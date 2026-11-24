@@ -1166,6 +1166,16 @@
           return String(num);
         },
 
+        safeExternalUrl(value) {
+          const url = String(value || "").trim();
+          return /^https?:\/\//i.test(url) ? this.escape(url) : "";
+        },
+
+        ugcFileLink(post) {
+          const url = this.safeExternalUrl(post.linkArquivoUgc);
+          return url ? `<a class="action-link" href="${url}" target="_blank" rel="noopener">Abrir arquivo</a>` : "-";
+        },
+
         countPostsByAthlete(athleteId) {
           return this.db.posts.filter((item) => Number(item.atletaId) === Number(athleteId)).length;
         },
@@ -1813,6 +1823,8 @@
                         <th>Views</th>
                         <th>Likes</th>
                         <th>Saves</th>
+                        <th>UGC</th>
+                        <th>Arquivo UGC</th>
                         <th>Acoes</th>
                       </tr>
                     </thead>
@@ -1827,6 +1839,8 @@
                           <td>${this.formatNumber(item.views)}</td>
                           <td>${this.formatNumber(item.likes)}</td>
                           <td>${this.formatNumber(item.saves)}</td>
+                          <td>${item.enviouUgc ? `<span class="badge badge-ativo">Sim</span>` : `<span class="meta">Nao</span>`}</td>
+                          <td>${this.ugcFileLink(item)}</td>
                           <td>
                             ${this.actionMenu(`
                               <button class="action-link" type="button" onclick="App.openPostForm(${item.id})">Editar</button>
@@ -2317,6 +2331,8 @@
                   ${this.field("Data publicacao", `<input class="input" type="date" name="dataPublicacao" value="${this.escape(postData.dataPublicacao || "")}" />`)}
                   ${this.field("Campanha vinculada", `<input class="input" name="campanhaVinculada" value="${this.escape(postData.campanhaVinculada || "")}" />`)}
                   ${this.field("Link do post", `<input class="input" name="linkPost" value="${this.escape(postData.linkPost || "")}" />`, true)}
+                  ${this.field("Conteudo UGC", `<label style="display:flex; align-items:center; gap:10px; min-height:44px; cursor:pointer;"><input type="checkbox" name="enviouUgc" ${postData.enviouUgc ? "checked" : ""} style="width:18px; height:18px;" /><span>O atleta enviou conteudo UGC</span></label>`, true)}
+                  ${this.field("Link do arquivo UGC", `<input class="input" type="url" name="linkArquivoUgc" placeholder="https://drive.google.com/..." value="${this.escape(postData.linkArquivoUgc || "")}" />`, true)}
                   ${this.field("Views", `<input class="input" type="number" name="views" value="${this.escape(postData.views || "")}" />`)}
                   ${this.field("Likes", `<input class="input" type="number" name="likes" value="${this.escape(postData.likes || "")}" />`)}
                   ${this.field("Comentarios", `<input class="input" type="number" name="comentarios" value="${this.escape(postData.comentarios || "")}" />`)}
@@ -2343,6 +2359,8 @@
             tipo: String(fd.get("tipo") || "post"),
             dataPublicacao: this.emptyToNull(fd.get("dataPublicacao")),
             campanhaVinculada: String(fd.get("campanhaVinculada") || "").trim(),
+            enviouUgc: fd.get("enviouUgc") === "on",
+            linkArquivoUgc: String(fd.get("linkArquivoUgc") || "").trim(),
             views: Number(fd.get("views") || 0) || 0,
             likes: Number(fd.get("likes") || 0) || 0,
             comentarios: Number(fd.get("comentarios") || 0) || 0,
@@ -2817,7 +2835,7 @@
               <div class="card">
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th>Plataforma</th><th>Tipo</th><th>Data</th><th>Campanha</th><th>Views</th><th>Likes</th><th>Acoes</th></tr></thead>
+                    <thead><tr><th>Plataforma</th><th>Tipo</th><th>Data</th><th>Campanha</th><th>Views</th><th>Likes</th><th>UGC</th><th>Arquivo UGC</th><th>Acoes</th></tr></thead>
                     <tbody>
                       ${posts.map((item) => `
                         <tr>
@@ -2827,6 +2845,8 @@
                           <td>${this.escape(item.campanhaVinculada || "-")}</td>
                           <td>${this.formatNumber(item.views)}</td>
                           <td>${this.formatNumber(item.likes)}</td>
+                          <td>${item.enviouUgc ? `<span class="badge badge-ativo">Sim</span>` : `<span class="meta">Nao</span>`}</td>
+                          <td>${this.ugcFileLink(item)}</td>
                           <td>
                             ${this.actionMenu(`
                               <button class="action-link" type="button" onclick="App.openPostForm(${item.id}, ${id}, 'posts')">Editar</button>
